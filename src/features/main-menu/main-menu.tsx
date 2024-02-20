@@ -38,16 +38,6 @@ export const MainMenu = async () => {
               <MessageCircle {...menuIconProps} />
             </MenuLink>
           </MenuItem>
-          <MenuItem tooltip="Persona">
-            <MenuLink href="/persona">
-              <VenetianMask {...menuIconProps} />
-            </MenuLink>
-          </MenuItem>
-          <MenuItem tooltip="extensions">
-            <MenuLink href="/extensions">
-              <PocketKnife {...menuIconProps} />
-            </MenuLink>
-          </MenuItem>
           <MenuItem tooltip="prompts">
             <MenuLink href="/prompt">
               <Book {...menuIconProps} />
