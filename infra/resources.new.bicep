@@ -1,4 +1,4 @@
-param name string = 'azurechat-demo'
+param name string = 'biz-ai'
 param resourceToken string
 
 param openai_api_version string
@@ -42,6 +42,9 @@ param location string = resourceGroup().location
 param nextAuthHash string = uniqueString(newGuid())
 
 param tags object = {}
+param postgresAdminUser string = 'admin'
+@secure()
+param postgresAdminPassword string
 
 var openai_name = toLower('${name}-aillm-${resourceToken}')
 var openai_dalle_name = toLower('${name}-aidalle-${resourceToken}')
@@ -66,9 +69,6 @@ var keyVaultSecretsOfficerRole = subscriptionResourceId('Microsoft.Authorization
 
 var validStorageServiceImageContainerName = toLower(replace(storageServiceImageContainerName, '-', ''))
 
-var databaseName = 'chat'
-var historyContainerName = 'history'
-var configContainerName = 'config'
 
 var llmDeployments = [
   {
@@ -192,14 +192,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'NEXTAUTH_URL'
           value: 'https://${webapp_name}.azurewebsites.net'
-        }
-        {
-          name: 'AZURE_COSMOSDB_URI'
-          value: cosmosDbAccount.properties.documentEndpoint
-        }
-        {
-          name: 'AZURE_COSMOSDB_KEY'
-          value: '@Microsoft.KeyVault(VaultName=${kv.name};SecretName=${kv::AZURE_COSMOSDB_KEY.name})'
         }
         {
           name: 'AZURE_SEARCH_API_KEY'
@@ -330,13 +322,6 @@ resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
     }
   }
 
-  resource AZURE_COSMOSDB_KEY 'secrets' = {
-    name: 'AZURE-COSMOSDB-KEY'
-    properties: {
-      contentType: 'text/plain'
-      value: cosmosDbAccount.listKeys().secondaryMasterKey
-    }
-  }
 
   resource AZURE_DOCUMENT_INTELLIGENCE_KEY 'secrets' = {
     name: 'AZURE-DOCUMENT-INTELLIGENCE-KEY'
@@ -371,22 +356,27 @@ resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   }
 }
 
-resource postgresqlServer 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' = {
-  name: cosmos_name // この名前はPostgreSQLのサーバ名になります。
+resource postgresqlServer 'Microsoft.DBforPostgreSQL/servers@2021-06-01' = {
+  name: cosmos_name
   location: location
-  tags: tags
   properties: {
-    administratorLogin: 'admin'
-    administratorLoginPassword: 'passw0rd'
-    version: '11' // 好みに応じてPostgreSQLのバージョンを設定
-    storageProfile: {
-      storageMB: 5120 // 最小5GBから開始
-    }
     createMode: 'Default'
+    administratorLogin: postgresAdminUser
+    administratorLoginPassword: postgresAdminPassword
+    version: '11'
+    sslEnforcement: 'Enabled'
+    storageProfile: {
+      storageMB: 5120
+      backupRetentionDays: 7
+      geoRedundantBackup: 'Disabled'
+      storageAutogrow: 'Disabled'
+    }
   }
   sku: {
-    name: 'Standard_D2s_v3' // お好みに応じてSKUを調整
+    name: 'GP_Gen5_2'
     tier: 'GeneralPurpose'
+    capacity: 2
+    family: 'Gen5'
   }
 }
 
