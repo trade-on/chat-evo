@@ -8,10 +8,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/features/ui/sheet";
-import { Switch } from "@/features/ui/switch";
 import { PocketKnife } from "lucide-react";
 import { FC } from "react";
-import { chatStore } from "../chat-store";
 
 interface Props {
   extensions: Array<ExtensionModel>;
@@ -21,14 +19,6 @@ interface Props {
 }
 
 export const ExtensionDetail: FC<Props> = (props) => {
-  const toggleInstall = async (isChecked: boolean, extensionId: string) => {
-    if (isChecked) {
-      await chatStore.AddExtensionToChatThread(extensionId);
-    } else {
-      await chatStore.RemoveExtensionFromChatThread(extensionId);
-    }
-  };
-
   const installedCount = props.installedExtensionIds?.length ?? 0;
   const totalCount = props.extensions.length;
 
@@ -58,12 +48,6 @@ export const ExtensionDetail: FC<Props> = (props) => {
                     <div className="text-muted-foreground">
                       {extension.description}
                     </div>
-                  </div>
-                  <div>
-                    <Switch
-                      defaultChecked={isInstalled}
-                      onCheckedChange={(e) => toggleInstall(e, extension.id)}
-                    />
                   </div>
                 </div>
               );

@@ -1,14 +1,10 @@
 import { getCurrentUser } from "@/features/auth-page/helpers";
 import {
-  CHAT_THREAD_ATTRIBUTE,
   ChatMessageModel,
   ChatThreadModel,
-  MESSAGE_ATTRIBUTE,
 } from "@/features/chat-page/chat-services/models";
 import { ServerActionResponse } from "@/features/common/server-action-response";
-import { HistoryContainer } from "@/features/common/services/cosmos";
 import { prisma } from "@/features/common/services/sql";
-import { SqlQuerySpec } from "@azure/cosmos";
 
 export const FindAllChatThreadsForAdmin = async (
   limit: number,
@@ -24,34 +20,12 @@ export const FindAllChatThreadsForAdmin = async (
   }
 
   try {
-    const querySpec: SqlQuerySpec = {
-      query:
-        "SELECT * FROM root r WHERE r.type=@type ORDER BY r.createdAt DESC OFFSET @offset LIMIT @limit",
-      parameters: [
-        {
-          name: "@type",
-          value: CHAT_THREAD_ATTRIBUTE,
-        },
-        {
-          name: "@offset",
-          value: offset,
-        },
-        {
-          name: "@limit",
-          value: limit,
-        },
-      ],
-    };
-    // {
-    //   id: string;
-    //   name: string;
-    //   createdAt: Date;
-    //   lastMessageAt: Date;
-    //   userId: string;
-    //   useName: string;
-    //   isDeleted: boolean;
-    // }
-    const resources = await prisma.completion.findMany();
+    const resources = await prisma.chatThread.findMany({
+      where: { tenantId: user.tenantId },
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: "desc" },
+    });
     return {
       status: "OK",
       response: resources,
@@ -77,25 +51,10 @@ export const FindAllChatMessagesForAdmin = async (
   }
 
   try {
-    const querySpec: SqlQuerySpec = {
-      query:
-        "SELECT * FROM root r WHERE r.type=@type AND r.threadId = @threadId ORDER BY r.createdAt ASC",
-      parameters: [
-        {
-          name: "@type",
-          value: MESSAGE_ATTRIBUTE,
-        },
-        {
-          name: "@threadId",
-          value: chatThreadID,
-        },
-      ],
-    };
-
-    const { resources } = await HistoryContainer()
-      .items.query<ChatMessageModel>(querySpec)
-      .fetchAll();
-
+    const resources = await prisma.chatMessage.findMany({
+      where: { threadId: chatThreadID },
+      orderBy: { createdAt: "asc" },
+    });
     return {
       status: "OK",
       response: resources,

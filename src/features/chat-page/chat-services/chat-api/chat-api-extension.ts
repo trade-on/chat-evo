@@ -2,11 +2,11 @@
 import "server-only";
 
 import { OpenAIInstance } from "@/features/common/services/openai";
-import { FindExtensionByID } from "@/features/extensions-page/extension-services/extension-service";
 import { RunnableToolFunction } from "openai/lib/RunnableFunction";
 import { ChatCompletionStreamingRunner } from "openai/resources/beta/chat/completions";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { ChatThreadModel } from "../models";
+import { CHAT_DEFAULT_SYSTEM_PROMPT } from "@/features/theme/theme-config";
 export const ChatApiExtensions = async (props: {
   chatThread: ChatThreadModel;
   userMessage: string;
@@ -14,10 +14,9 @@ export const ChatApiExtensions = async (props: {
   extensions: RunnableToolFunction<any>[];
   signal: AbortSignal;
 }): Promise<ChatCompletionStreamingRunner> => {
-  const { userMessage, history, signal, chatThread, extensions } = props;
+  const { userMessage, history, signal } = props;
 
   const openAI = OpenAIInstance();
-  const systemMessage = await extensionsSystemMessage(chatThread);
   return openAI.beta.chat.completions.runTools(
     {
       model: "",
@@ -25,7 +24,7 @@ export const ChatApiExtensions = async (props: {
       messages: [
         {
           role: "system",
-          content: chatThread.personaMessage + "\n" + systemMessage,
+          content: CHAT_DEFAULT_SYSTEM_PROMPT,
         },
         ...history,
         {
@@ -33,21 +32,8 @@ export const ChatApiExtensions = async (props: {
           content: userMessage,
         },
       ],
-      tools: extensions,
+      tools: [],
     },
     { signal: signal }
   );
-};
-
-const extensionsSystemMessage = async (chatThread: ChatThreadModel) => {
-  let message = "";
-
-  for (const e of chatThread.extension) {
-    const extension = await FindExtensionByID(e);
-    if (extension.status === "OK") {
-      message += ` ${extension.response.executionSteps} \n`;
-    }
-  }
-
-  return message;
 };

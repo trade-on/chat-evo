@@ -10,7 +10,7 @@ export const ChatApiMultimodal = (props: {
   file: string;
   signal: AbortSignal;
 }): ChatCompletionStreamingRunner => {
-  const { chatThread, userMessage, signal, file } = props;
+  const { userMessage, signal, file } = props;
 
   const openAI = OpenAIVisionInstance();
 
@@ -23,8 +23,7 @@ export const ChatApiMultimodal = (props: {
         {
           role: "system",
           content:
-            chatThread.personaMessage +
-            "\n You are an expert in extracting insights from images that are uploaded to the chat. \n You will answer questions about the image that is provided.",
+            "You are an expert in extracting insights from images that are uploaded to the chat. \n You will answer questions about the image that is provided.",
         },
         {
           role: "user",

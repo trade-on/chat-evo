@@ -7,6 +7,7 @@ export const userSession = async (): Promise<UserModel | null> => {
   const session = await getServerSession(options);
   if (session && session.user) {
     return {
+      id: session.user.email!,
       name: session.user.name!,
       image: session.user.image!,
       email: session.user.email!,
@@ -48,8 +49,10 @@ export const redirectIfAuthenticated = async () => {
 };
 
 export type UserModel = {
+  id: string;
   name: string;
   image: string;
   email: string;
   isAdmin: boolean;
+  tenantId: string;
 };

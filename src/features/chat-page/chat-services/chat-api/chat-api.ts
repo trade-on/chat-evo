@@ -42,7 +42,6 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
   ]);
   // Starting values for system and user prompt
   // Note that the system message will also get prepended with the extension execution steps. Please see ChatApiExtensions method.
-  currentChatThread.personaMessage = `${CHAT_DEFAULT_SYSTEM_PROMPT} \n\n ${currentChatThread.personaMessage}`;
 
   let chatType: ChatTypes = "extensions";
 
@@ -146,16 +145,6 @@ const _getExtensions = async (props: {
   });
   if (response.status === "OK" && response.response.length > 0) {
     extension.push(...response.response);
-  }
-
-  const dynamicExtensionsResponse = await GetDynamicExtensions({
-    extensionIds: props.chatThread.extension,
-  });
-  if (
-    dynamicExtensionsResponse.status === "OK" &&
-    dynamicExtensionsResponse.response.length > 0
-  ) {
-    extension.push(...dynamicExtensionsResponse.response);
   }
 
   return extension;

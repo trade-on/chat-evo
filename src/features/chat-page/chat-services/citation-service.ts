@@ -6,6 +6,11 @@ import { SqlQuerySpec } from "@azure/cosmos";
 import { DocumentSearchResponse } from "./azure-ai-search/azure-ai-search";
 import { CHAT_CITATION_ATTRIBUTE, ChatCitationModel } from "./models";
 
+/**
+ *
+ * @param model
+ * @deprecated RAGは使用しない
+ */
 export const CreateCitation = async (
   model: ChatCitationModel
 ): Promise<ServerActionResponse<ChatCitationModel>> => {
@@ -34,6 +39,11 @@ export const CreateCitation = async (
 
 // Create citations for the documents with a user as optional parameter
 // when calling this method from the extension, you must provide the user as the REST API does not have access to the user
+/**
+ *
+ * @param model
+ * @deprecated RAGは使用しない
+ */
 export const CreateCitations = async (
   models: DocumentSearchResponse[],
   userId?: string
@@ -54,6 +64,11 @@ export const CreateCitations = async (
   return await Promise.all(items);
 };
 
+/**
+ *
+ * @param model
+ * @deprecated RAGは使用しない
+ */
 export const FindCitationByID = async (
   id: string
 ): Promise<ServerActionResponse<ChatCitationModel>> => {
@@ -100,6 +115,11 @@ export const FindCitationByID = async (
   }
 };
 
+/**
+ *
+ * @param model
+ * @deprecated RAGは使用しない
+ */
 export const FormatCitations = (citation: DocumentSearchResponse[]) => {
   const withoutEmbedding: DocumentSearchResponse[] = [];
   citation.forEach((d) => {

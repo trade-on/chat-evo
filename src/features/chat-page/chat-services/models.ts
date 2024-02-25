@@ -15,20 +15,18 @@ export interface ChatMessageModel {
   content: string;
   role: ChatRole;
   name: string;
-  multiModalImage?: string;
-  type: typeof MESSAGE_ATTRIBUTE;
+  multiModalImage: string | null;
 }
 
 export type ChatRole = "system" | "user" | "assistant" | "function" | "tool";
 
 export interface ChatThreadModel {
   id: string;
-  tenantId: string;
   title: string;
   createdAt: Date;
-  updatedAt: Date;
+  lastMessageAt: Date;
   userId: string;
-  useName: string;
+  userName: string;
   isDeleted: boolean;
 }
 

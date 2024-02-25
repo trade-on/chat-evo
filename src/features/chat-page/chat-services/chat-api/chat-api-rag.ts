@@ -11,6 +11,7 @@ import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { SimilaritySearch } from "../azure-ai-search/azure-ai-search";
 import { CreateCitations, FormatCitations } from "../citation-service";
 import { ChatCitationModel, ChatThreadModel } from "../models";
+import { CHAT_DEFAULT_SYSTEM_PROMPT } from "@/features/theme/theme-config";
 
 export const ChatApiRAG = async (props: {
   chatThread: ChatThreadModel;
@@ -69,7 +70,7 @@ ${userMessage}
     messages: [
       {
         role: "system",
-        content: chatThread.personaMessage,
+        content: CHAT_DEFAULT_SYSTEM_PROMPT,
       },
       ...history,
       {

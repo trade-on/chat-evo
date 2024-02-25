@@ -3,46 +3,24 @@ import "server-only";
 
 import { userHashedId } from "@/features/auth-page/helpers";
 import { ServerActionResponse } from "@/features/common/server-action-response";
-import { uniqueId } from "@/features/common/util";
-import { SqlQuerySpec } from "@azure/cosmos";
-import { HistoryContainer } from "../../common/services/cosmos";
-import { ChatMessageModel, ChatRole, MESSAGE_ATTRIBUTE } from "./models";
+import { ChatRole } from "./models";
+import { prisma } from "@/features/common/services/sql";
+import { ChatMessage } from "@prisma/client";
 
 export const FindTopChatMessagesForCurrentUser = async (
   chatThreadID: string,
   top: number = 30
-): Promise<ServerActionResponse<Array<ChatMessageModel>>> => {
+): Promise<ServerActionResponse<Array<ChatMessage>>> => {
   try {
-    const querySpec: SqlQuerySpec = {
-      query:
-        "SELECT TOP @top * FROM root r WHERE r.type=@type AND r.threadId = @threadId AND r.userId=@userId AND r.isDeleted=@isDeleted ORDER BY r.createdAt DESC",
-      parameters: [
-        {
-          name: "@type",
-          value: MESSAGE_ATTRIBUTE,
-        },
-        {
-          name: "@threadId",
-          value: chatThreadID,
-        },
-        {
-          name: "@userId",
-          value: await userHashedId(),
-        },
-        {
-          name: "@isDeleted",
-          value: false,
-        },
-        {
-          name: "@top",
-          value: top,
-        },
-      ],
-    };
-
-    const { resources } = await HistoryContainer()
-      .items.query<ChatMessageModel>(querySpec)
-      .fetchAll();
+    const resources = await prisma.chatMessage.findMany({
+      where: {
+        threadId: chatThreadID,
+        userId: await userHashedId(),
+        isDeleted: false,
+      },
+      take: top,
+      orderBy: { createdAt: "desc" },
+    });
 
     return {
       status: "OK",
@@ -62,34 +40,16 @@ export const FindTopChatMessagesForCurrentUser = async (
 
 export const FindAllChatMessagesForCurrentUser = async (
   chatThreadID: string
-): Promise<ServerActionResponse<Array<ChatMessageModel>>> => {
+): Promise<ServerActionResponse<Array<ChatMessage>>> => {
   try {
-    const querySpec: SqlQuerySpec = {
-      query:
-        "SELECT * FROM root r WHERE r.type=@type AND r.threadId = @threadId AND r.userId=@userId AND  r.isDeleted=@isDeleted ORDER BY r.createdAt ASC",
-      parameters: [
-        {
-          name: "@type",
-          value: MESSAGE_ATTRIBUTE,
-        },
-        {
-          name: "@threadId",
-          value: chatThreadID,
-        },
-        {
-          name: "@userId",
-          value: await userHashedId(),
-        },
-        {
-          name: "@isDeleted",
-          value: false,
-        },
-      ],
-    };
-
-    const { resources } = await HistoryContainer()
-      .items.query<ChatMessageModel>(querySpec)
-      .fetchAll();
+    const resources = await prisma.chatMessage.findMany({
+      where: {
+        threadId: chatThreadID,
+        userId: await userHashedId(),
+        isDeleted: false,
+      },
+      orderBy: { createdAt: "asc" },
+    });
 
     return {
       status: "OK",
@@ -118,38 +78,26 @@ export const CreateChatMessage = async ({
   role: ChatRole;
   content: string;
   chatThreadId: string;
-  multiModalImage?: string;
-}): Promise<ServerActionResponse<ChatMessageModel>> => {
+  multiModalImage?: string | null;
+}): Promise<ServerActionResponse<ChatMessage>> => {
   const userId = await userHashedId();
-  const modelToSave: ChatMessageModel = {
-    id: uniqueId(),
-    createdAt: new Date(),
-    type: MESSAGE_ATTRIBUTE,
-    isDeleted: false,
-    content: content,
-    name: name,
-    role: role,
-    threadId: chatThreadId,
+  const modelToSave: Omit<ChatMessage, "id" | "createdAt" | "updatedAt"> = {
+    content,
+    name,
+    role,
     userId: userId,
-    multiModalImage: multiModalImage,
+    threadId: chatThreadId,
+    isDeleted: false,
+    multiModalImage: multiModalImage ?? null,
   };
   return await UpsertChatMessage(modelToSave);
 };
 
 export const UpsertChatMessage = async (
-  chatModel: ChatMessageModel
-): Promise<ServerActionResponse<ChatMessageModel>> => {
+  chatModel: Omit<ChatMessage, "id" | "createdAt" | "updatedAt">
+): Promise<ServerActionResponse<ChatMessage>> => {
   try {
-    const modelToSave: ChatMessageModel = {
-      ...chatModel,
-      id: uniqueId(),
-      createdAt: new Date(),
-      type: MESSAGE_ATTRIBUTE,
-      isDeleted: false,
-    };
-
-    const { resource } =
-      await HistoryContainer().items.upsert<ChatMessageModel>(modelToSave);
+    const resource = await prisma.chatMessage.create({ data: chatModel });
 
     if (resource) {
       return {

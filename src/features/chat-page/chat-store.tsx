@@ -13,11 +13,7 @@ import { RevalidateCache } from "../common/navigation-helpers";
 import { InputImageStore } from "../ui/chat/chat-input-area/input-image-store";
 import { textToSpeechStore } from "./chat-input/speech/use-text-to-speech";
 import { ResetInputRows } from "./chat-input/use-chat-input-dynamic-height";
-import {
-  AddExtensionToChatThread,
-  RemoveExtensionFromChatThread,
-  UpdateChatTitle,
-} from "./chat-services/chat-thread-service";
+import { UpdateChatTitle } from "./chat-services/chat-thread-service";
 import {
   AzureChatCompletion,
   ChatMessageModel,
@@ -73,44 +69,6 @@ class ChatState {
     this.userName = userName;
   }
 
-  public async AddExtensionToChatThread(extensionId: string) {
-    this.loading = "loading";
-
-    const response = await AddExtensionToChatThread({
-      extensionId: extensionId,
-      chatThreadId: this.chatThreadId,
-    });
-    RevalidateCache({
-      page: "chat",
-      type: "layout",
-    });
-
-    if (response.status !== "OK") {
-      showError(response.errors[0].message);
-    }
-
-    this.loading = "idle";
-  }
-
-  public async RemoveExtensionFromChatThread(extensionId: string) {
-    this.loading = "loading";
-
-    const response = await RemoveExtensionFromChatThread({
-      extensionId: extensionId,
-      chatThreadId: this.chatThreadId,
-    });
-
-    RevalidateCache({
-      page: "chat",
-    });
-
-    if (response.status !== "OK") {
-      showError(response.errors[0].message);
-    }
-
-    this.loading = "idle";
-  }
-
   public updateInput(value: string) {
     this.input = value;
   }
@@ -144,7 +102,6 @@ class ChatState {
       createdAt: new Date(),
       isDeleted: false,
       threadId: this.chatThreadId,
-      type: "CHAT_MESSAGE",
       userId: "",
     };
 
@@ -179,7 +136,6 @@ class ChatState {
                 createdAt: new Date(),
                 isDeleted: false,
                 threadId: this.chatThreadId,
-                type: "CHAT_MESSAGE",
                 userId: "",
                 multiModalImage: "",
               };
@@ -194,7 +150,6 @@ class ChatState {
                 createdAt: new Date(),
                 isDeleted: false,
                 threadId: this.chatThreadId,
-                type: "CHAT_MESSAGE",
                 userId: "",
                 multiModalImage: "",
               };
@@ -209,7 +164,6 @@ class ChatState {
                 createdAt: new Date(),
                 isDeleted: false,
                 threadId: this.chatThreadId,
-                type: "CHAT_MESSAGE",
                 userId: "",
                 multiModalImage: "",
               };
@@ -259,7 +213,7 @@ class ChatState {
   }
 
   private async updateTitle() {
-    if (this.chatThread && this.chatThread.name === NEW_CHAT_NAME) {
+    if (this.chatThread && this.chatThread.title === NEW_CHAT_NAME) {
       await UpdateChatTitle(this.chatThreadId, this.messages[0].content);
       RevalidateCache({
         page: "chat",

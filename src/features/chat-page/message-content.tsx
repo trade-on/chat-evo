@@ -15,7 +15,7 @@ interface MessageContentProps {
     role: string;
     content: string;
     name: string;
-    multiModalImage?: string;
+    multiModalImage: string | null;
   };
 }
 
