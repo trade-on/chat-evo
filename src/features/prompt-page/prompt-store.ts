@@ -1,22 +1,22 @@
 import { proxy, useSnapshot } from "valtio";
 import { RevalidateCache } from "../common/navigation-helpers";
 import { ServerActionResponse } from "../common/server-action-response";
-import { PROMPT_ATTRIBUTE, PromptModel } from "./models";
 import { CreatePrompt, UpsertPrompt } from "./prompt-service";
+import { Prompt } from "@prisma/client";
 
 class PromptState {
-  private defaultModel: PromptModel = {
+  private defaultModel: Prompt = {
     id: "",
     name: "",
     description: "",
     createdAt: new Date(),
-    type: "PROMPT",
+    updatedAt: new Date(),
     isPublished: false,
     userId: "",
   };
 
   public errors: string[] = [];
-  public prompt: PromptModel = { ...this.defaultModel };
+  public prompt: Prompt = { ...this.defaultModel };
   public isOpened: boolean = false;
 
   public newPrompt() {
@@ -30,7 +30,7 @@ class PromptState {
     this.isOpened = value;
   }
 
-  public updatePrompt(prompt: PromptModel) {
+  public updatePrompt(prompt: Prompt) {
     this.prompt = {
       ...prompt,
     };
@@ -53,7 +53,7 @@ export const usePromptState = () => {
 export const addOrUpdatePrompt = async (
   previous: any,
   formData: FormData
-): Promise<ServerActionResponse<PromptModel>> => {
+): Promise<ServerActionResponse<Prompt>> => {
   promptStore.updateErrors([]);
 
   const model = FormDataToPromptModel(formData);
@@ -74,7 +74,7 @@ export const addOrUpdatePrompt = async (
   return response;
 };
 
-export const FormDataToPromptModel = (formData: FormData): PromptModel => {
+export const FormDataToPromptModel = (formData: FormData): Prompt => {
   return {
     id: formData.get("id") as string,
     name: formData.get("name") as string,
@@ -82,6 +82,6 @@ export const FormDataToPromptModel = (formData: FormData): PromptModel => {
     isPublished: formData.get("isPublished") === "on" ? true : false,
     userId: "", // the user id is set on the server once the user is authenticated
     createdAt: new Date(),
-    type: PROMPT_ATTRIBUTE,
+    updatedAt: new Date(),
   };
 };

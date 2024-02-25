@@ -6,17 +6,17 @@ import {
 } from "@/features/common/server-action-response";
 import {
   PROMPT_ATTRIBUTE,
-  PromptModel,
   PromptModelSchema,
 } from "@/features/prompt-page/models";
 import { SqlQuerySpec } from "@azure/cosmos";
 import { getCurrentUser, userHashedId } from "../auth-page/helpers";
 import { ConfigContainer } from "../common/services/cosmos";
-import { uniqueId } from "../common/util";
+import { Prompt } from "@prisma/client";
+import { prisma } from "../common/services/sql";
 
 export const CreatePrompt = async (
-  props: PromptModel
-): Promise<ServerActionResponse<PromptModel>> => {
+  props: Prompt
+): Promise<ServerActionResponse<Prompt>> => {
   try {
     const user = await getCurrentUser();
 
@@ -31,14 +31,11 @@ export const CreatePrompt = async (
       };
     }
 
-    const modelToSave: PromptModel = {
-      id: uniqueId(),
+    const modelToSave: Omit<Prompt, "id" | "createdAt" | "updatedAt"> = {
       name: props.name,
       description: props.description,
       isPublished: user.isAdmin ? props.isPublished : false,
       userId: await userHashedId(),
-      createdAt: new Date(),
-      type: "PROMPT",
     };
 
     const valid = ValidateSchema(modelToSave);
@@ -47,9 +44,7 @@ export const CreatePrompt = async (
       return valid;
     }
 
-    const { resource } = await ConfigContainer().items.create<PromptModel>(
-      modelToSave
-    );
+    const resource = await prisma.prompt.create({ data: modelToSave });
 
     if (resource) {
       return {
@@ -79,22 +74,12 @@ export const CreatePrompt = async (
 };
 
 export const FindAllPrompts = async (): Promise<
-  ServerActionResponse<Array<PromptModel>>
+  ServerActionResponse<Array<Prompt>>
 > => {
   try {
-    const querySpec: SqlQuerySpec = {
-      query: "SELECT * FROM root r WHERE r.type=@type",
-      parameters: [
-        {
-          name: "@type",
-          value: PROMPT_ATTRIBUTE,
-        },
-      ],
-    };
-
-    const { resources } = await ConfigContainer()
-      .items.query<PromptModel>(querySpec)
-      .fetchAll();
+    const resources = await prisma.prompt.findMany({
+      where: { userId: await userHashedId() },
+    });
 
     return {
       status: "OK",
@@ -114,7 +99,7 @@ export const FindAllPrompts = async (): Promise<
 
 export const EnsurePromptOperation = async (
   promptId: string
-): Promise<ServerActionResponse<PromptModel>> => {
+): Promise<ServerActionResponse<Prompt>> => {
   const promptResponse = await FindPromptByID(promptId);
   const currentUser = await getCurrentUser();
 
@@ -136,14 +121,14 @@ export const EnsurePromptOperation = async (
 
 export const DeletePrompt = async (
   promptId: string
-): Promise<ServerActionResponse<PromptModel>> => {
+): Promise<ServerActionResponse<Prompt>> => {
   try {
     const promptResponse = await EnsurePromptOperation(promptId);
 
     if (promptResponse.status === "OK") {
-      const { resource: deletedPrompt } = await ConfigContainer()
-        .item(promptId, promptResponse.response.userId)
-        .delete();
+      const deletedPrompt = await prisma.prompt.delete({
+        where: { id: promptId },
+      });
 
       return {
         status: "OK",
@@ -166,27 +151,13 @@ export const DeletePrompt = async (
 
 export const FindPromptByID = async (
   id: string
-): Promise<ServerActionResponse<PromptModel>> => {
+): Promise<ServerActionResponse<Prompt>> => {
   try {
-    const querySpec: SqlQuerySpec = {
-      query: "SELECT * FROM root r WHERE r.type=@type AND r.id=@id",
-      parameters: [
-        {
-          name: "@type",
-          value: PROMPT_ATTRIBUTE,
-        },
-        {
-          name: "@id",
-          value: id,
-        },
-      ],
-    };
+    const resource = await prisma.prompt.findUnique({
+      where: { id },
+    });
 
-    const { resources } = await ConfigContainer()
-      .items.query<PromptModel>(querySpec)
-      .fetchAll();
-
-    if (resources.length === 0) {
+    if (!resource) {
       return {
         status: "NOT_FOUND",
         errors: [
@@ -199,7 +170,7 @@ export const FindPromptByID = async (
 
     return {
       status: "OK",
-      response: resources[0],
+      response: resource,
     };
   } catch (error) {
     return {
@@ -214,8 +185,8 @@ export const FindPromptByID = async (
 };
 
 export const UpsertPrompt = async (
-  promptInput: PromptModel
-): Promise<ServerActionResponse<PromptModel>> => {
+  promptInput: Omit<Prompt, "createdAt" | "updatedAt">
+): Promise<ServerActionResponse<Prompt>> => {
   try {
     const promptResponse = await EnsurePromptOperation(promptInput.id);
 
@@ -223,7 +194,7 @@ export const UpsertPrompt = async (
       const { response: prompt } = promptResponse;
       const user = await getCurrentUser();
 
-      const modelToUpdate: PromptModel = {
+      const modelToUpdate: Prompt = {
         ...prompt,
         name: promptInput.name,
         description: promptInput.description,
@@ -237,10 +208,10 @@ export const UpsertPrompt = async (
       if (validationResponse.status !== "OK") {
         return validationResponse;
       }
-
-      const { resource } = await ConfigContainer().items.upsert<PromptModel>(
-        modelToUpdate
-      );
+      const resource = await prisma.prompt.update({
+        where: { id: modelToUpdate.id },
+        data: modelToUpdate,
+      });
 
       if (resource) {
         return {
@@ -272,7 +243,9 @@ export const UpsertPrompt = async (
   }
 };
 
-const ValidateSchema = (model: PromptModel): ServerActionResponse => {
+const ValidateSchema = (
+  model: Omit<Prompt, "id" | "createdAt" | "updatedAt">
+): ServerActionResponse => {
   const validatedFields = PromptModelSchema.safeParse(model);
 
   if (!validatedFields.success) {

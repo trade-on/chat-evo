@@ -5,7 +5,6 @@ export const PROMPT_ATTRIBUTE = "PROMPT";
 export type PromptModel = z.infer<typeof PromptModelSchema>;
 
 export const PromptModelSchema = z.object({
-  id: z.string(),
   name: z
     .string()
     .min(1, {
@@ -18,8 +17,6 @@ export const PromptModelSchema = z.object({
       message: "Description cannot be empty",
     })
     .refine(refineFromEmpty, "Description cannot be empty"),
-  createdAt: z.date(),
   isPublished: z.boolean(),
   userId: z.string(),
-  type: z.literal(PROMPT_ATTRIBUTE),
 });

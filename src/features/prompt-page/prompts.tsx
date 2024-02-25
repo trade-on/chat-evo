@@ -11,15 +11,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { PromptModel } from "@/features/prompt-page/models";
+import { Prompt } from "@prisma/client";
 
 export const Prompts = (props: {
   selectedPrompt: (e: string) => void;
-  samplePrompts: Array<PromptModel>;
+  samplePrompts: Array<Prompt>;
 }) => {
   const [open, setOpen] = useState(false);
 
-  function onPromptClicked(item: PromptModel): void {
+  function onPromptClicked(item: Prompt): void {
     setOpen(false);
     return props.selectedPrompt(item.description);
   }
