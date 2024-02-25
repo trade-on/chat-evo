@@ -23,17 +23,13 @@ export type ChatRole = "system" | "user" | "assistant" | "function" | "tool";
 
 export interface ChatThreadModel {
   id: string;
-  name: string;
+  tenantId: string;
+  title: string;
   createdAt: Date;
-  lastMessageAt: Date;
+  updatedAt: Date;
   userId: string;
   useName: string;
   isDeleted: boolean;
-  bookmarked: boolean;
-  personaMessage: string;
-  personaMessageTitle: string;
-  extension: string[];
-  type: typeof CHAT_THREAD_ATTRIBUTE;
 }
 
 export interface UserPrompt {

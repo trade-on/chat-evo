@@ -23,6 +23,7 @@ import {
   ChatDocumentModel,
   ChatThreadModel,
 } from "./models";
+import { prisma } from "@/features/common/services/sql";
 
 export const FindAllChatThreadForCurrentUser = async (): Promise<
   ServerActionResponse<Array<ChatThreadModel>>
@@ -47,11 +48,7 @@ export const FindAllChatThreadForCurrentUser = async (): Promise<
       ],
     };
 
-    const { resources } = await HistoryContainer()
-      .items.query<ChatThreadModel>(querySpec, {
-        partitionKey: await userHashedId(),
-      })
-      .fetchAll();
+    const  resources  = prisma.
     return {
       status: "OK",
       response: resources,

@@ -11,9 +11,17 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
-enum Role {
+enum UserRole {
   admin
   member
+}
+
+enum ChatRole {
+  system
+  user
+  assistant
+  function
+  tool
 }
 
 model Tenant {
@@ -23,7 +31,7 @@ model Tenant {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   users        User[]
-  completions  Completion[]
+  chatThread  ChatThread[]
 }
 
 
@@ -37,9 +45,10 @@ model User {
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
   accounts              Account[]
-  completions           Completion[]
+  chatThreads           ChatThread[]
+  chatMessages           ChatMessage[]
   tenant                Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  role                  Role
+  role                  UserRole   @default(member)
   @@map("users")
 }
 
@@ -63,13 +72,34 @@ model Account {
   @@map("accounts")
 }
 
-model Completion {
-  id            String    @id @default(cuid())
-  tenantId      String    @map("tenant_id")
-  title         String
-  userId        String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+model ChatMessage {
+  id               String     @id @default(cuid())
+  threadId         String     @map("thread_id")
+  userId           String     @map("user_id")
+  name             String
+  content          String
+  role             ChatRole
+  isDeleted        Boolean    @default(false)
+  multiModalImage  String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatThread       ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  // @@map("chat_messages")
+
+}
+
+model ChatThread {
+  id             String    @id @default(cuid())
+  tenantId       String    @map("tenant_id")
+  title          String
+  isDeleted      Boolean   @default(false)
+  userId         String
+  lastMessagedAt DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant        Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  chatMessage   ChatMessage[]
+
 }

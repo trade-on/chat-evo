@@ -7,6 +7,7 @@ import {
 } from "@/features/chat-page/chat-services/models";
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { HistoryContainer } from "@/features/common/services/cosmos";
+import { prisma } from "@/features/common/services/sql";
 import { SqlQuerySpec } from "@azure/cosmos";
 
 export const FindAllChatThreadsForAdmin = async (
@@ -41,10 +42,16 @@ export const FindAllChatThreadsForAdmin = async (
         },
       ],
     };
-
-    const { resources } = await HistoryContainer()
-      .items.query<ChatThreadModel>(querySpec)
-      .fetchAll();
+    // {
+    //   id: string;
+    //   name: string;
+    //   createdAt: Date;
+    //   lastMessageAt: Date;
+    //   userId: string;
+    //   useName: string;
+    //   isDeleted: boolean;
+    // }
+    const resources = await prisma.completion.findMany();
     return {
       status: "OK",
       response: resources,
