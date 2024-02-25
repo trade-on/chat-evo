@@ -1,7 +1,5 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import AzureADProvider from "next-auth/providers/azure-ad";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GitHubProvider from "next-auth/providers/github";
 import { Provider } from "next-auth/providers/index";
 import { hashValue } from "./helpers";
 import AzureADB2CProvider from "next-auth/providers/azure-ad-b2c";
@@ -12,47 +10,6 @@ const configureIdentityProvider = () => {
   const adminEmails = process.env.ADMIN_EMAIL_ADDRESS?.split(",").map((email) =>
     email.toLowerCase().trim()
   );
-
-  if (process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET) {
-    providers.push(
-      GitHubProvider({
-        clientId: process.env.AUTH_GITHUB_ID!,
-        clientSecret: process.env.AUTH_GITHUB_SECRET!,
-        async profile(profile) {
-          const newProfile = {
-            ...profile,
-            isAdmin: adminEmails?.includes(profile.email.toLowerCase()),
-          };
-          return newProfile;
-        },
-      })
-    );
-  }
-
-  if (
-    process.env.AZURE_AD_CLIENT_ID &&
-    process.env.AZURE_AD_CLIENT_SECRET &&
-    process.env.AZURE_AD_TENANT_ID
-  ) {
-    providers.push(
-      AzureADProvider({
-        clientId: process.env.AZURE_AD_CLIENT_ID!,
-        clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
-        tenantId: process.env.AZURE_AD_TENANT_ID!,
-        async profile(profile) {
-          const newProfile = {
-            ...profile,
-            // throws error without this - unsure of the root cause (https://stackoverflow.com/questions/76244244/profile-id-is-missing-in-google-oauth-profile-response-nextauth)
-            id: profile.sub,
-            isAdmin:
-              adminEmails?.includes(profile.email.toLowerCase()) ||
-              adminEmails?.includes(profile.preferred_username.toLowerCase()),
-          };
-          return newProfile;
-        },
-      })
-    );
-  }
 
   if (
     process.env.AZURE_AD_B2C_TENANT_NAME &&
@@ -71,17 +28,17 @@ const configureIdentityProvider = () => {
             scope: `https://${process.env.AZURE_AD_B2C_TENANT_NAME}.onmicrosoft.com/api/all.crud offline_access openid`,
           },
         },
-        // async profile(profile) {
-        //   const newProfile = {
-        //     ...profile,
-        //     // throws error without this - unsure of the root cause (https://stackoverflow.com/questions/76244244/profile-id-is-missing-in-google-oauth-profile-response-nextauth)
-        //     id: profile.sub,
-        //     isAdmin:
-        //       adminEmails?.includes(profile.email.toLowerCase()) ||
-        //       adminEmails?.includes(profile.preferred_username.toLowerCase()),
-        //   };
-        //   return newProfile;
-        // },
+        async profile(profile) {
+          const newProfile = {
+            ...profile,
+            // throws error without this - unsure of the root cause (https://stackoverflow.com/questions/76244244/profile-id-is-missing-in-google-oauth-profile-response-nextauth)
+            id: profile.sub,
+            isAdmin:
+              adminEmails?.includes(profile.email.toLowerCase()) ||
+              adminEmails?.includes(profile.preferred_username.toLowerCase()),
+          };
+          return newProfile;
+        },
       })
     );
   }
