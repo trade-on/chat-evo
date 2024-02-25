@@ -27,14 +27,12 @@ export const LogIn: FC<LoginProps> = (props) => {
             </Avatar>
             <span className="text-primary">{AI_NAME}</span>
           </CardTitle>
-          <CardDescription>
-            Login in with your GitHub or Microsoft 365 account
-          </CardDescription>
+          <CardDescription>ログイン</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          <Button onClick={() => signIn("github")}>GitHub</Button>
-          <Button onClick={() => signIn("azure-ad")}> Microsoft 365</Button>
-          <Button onClick={() => signIn("azure-ad-b2c")}>AD B2C</Button>
+          <Button onClick={() => signIn("azure-ad-b2c")}>
+            パスワードでサインイン
+          </Button>
           {props.isDevMode ? (
             <Button onClick={() => signIn("localdev")}>
               Basic Auth (DEV ONLY)

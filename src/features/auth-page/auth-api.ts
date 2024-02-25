@@ -33,11 +33,17 @@ const configureIdentityProvider = () => {
             ...profile,
             // throws error without this - unsure of the root cause (https://stackoverflow.com/questions/76244244/profile-id-is-missing-in-google-oauth-profile-response-nextauth)
             id: profile.sub,
-            isAdmin:
-              adminEmails?.includes(profile.email.toLowerCase()) ||
-              adminEmails?.includes(profile.preferred_username.toLowerCase()),
+            isAdmin: adminEmails?.includes(profile.emails[0].toLowerCase()),
           };
-          return newProfile;
+          return {
+            ...newProfile,
+            id: profile.sub,
+            name: profile.name,
+            email: profile.emails[0],
+            // TODO: Find out how to retrieve the profile picture
+            image: null,
+            // isAdmin: true,
+          };
         },
       })
     );
