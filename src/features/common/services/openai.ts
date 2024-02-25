@@ -1,11 +1,17 @@
 import { OpenAI } from "openai";
 
-export const OpenAIInstance = () => {
+export const OpenAIInstance = (model: "35" | "4" = "35") => {
   const openai = new OpenAI({
-    apiKey: process.env.AZURE_OPENAI_API_KEY,
-    baseURL: `https://${process.env.AZURE_OPENAI_API_INSTANCE_NAME}.openai.azure.com/openai/deployments/${process.env.AZURE_OPENAI_API_DEPLOYMENT_NAME}`,
-    defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION },
-    defaultHeaders: { "api-key": process.env.AZURE_OPENAI_API_KEY },
+    apiKey: process.env[`AZURE_OPENAI_API_KEY_${model}`],
+    baseURL: `https://${
+      process.env[`AZURE_OPENAI_API_INSTANCE_NAME_${model}`]
+    }.openai.azure.com/openai/deployments/${
+      process.env[`AZURE_OPENAI_API_DEPLOYMENT_NAME_${model}`]
+    }`,
+    defaultQuery: {
+      "api-version": process.env[`AZURE_OPENAI_API_VERSION_${model}`],
+    },
+    defaultHeaders: { "api-key": process.env[`AZURE_OPENAI_API_KEY_${model}`] },
   });
   return openai;
 };
