@@ -26,7 +26,7 @@ export const middleware = auth((request) => {
 
     if (requireAdmin.some((path) => pathname.startsWith(path))) {
       //check if not authorized
-      if (user.role !== "admin") {
+      if (request.auth?.customClaims.role !== "admin") {
         const url = new URL(`/unauthorized`, request.nextUrl.origin);
         return NextResponse.rewrite(url);
       }

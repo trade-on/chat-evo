@@ -61,7 +61,7 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
     threadId: currentChatThread.id,
     multiModalImage: props.multimodalImage,
     isDeleted: false,
-    name: user.name ?? null,
+    name: user.displayName ?? null,
   });
   console.log("🟢 ChatAPIEntry -> createdMessage", createdMessage);
 

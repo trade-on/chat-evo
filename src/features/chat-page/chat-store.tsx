@@ -99,7 +99,7 @@ class ChatState {
       isDeleted: false,
       threadId: this.chatThreadId,
       userId: user.id,
-      name: user.name ?? null,
+      name: user.displayName ?? null,
       id: "",
       updatedAt: new Date(),
     };

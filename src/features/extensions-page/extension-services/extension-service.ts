@@ -389,7 +389,7 @@ export const CreateChatWithExtension = async (
     const thread = await prisma.chatThread.create({
       data: {
         title: extension.name,
-        userName: user?.name ?? "",
+        userName: user?.displayName ?? "",
         userId: user.id,
         lastMessageAt: new Date(),
         isDeleted: false,

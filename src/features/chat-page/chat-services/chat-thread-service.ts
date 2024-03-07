@@ -173,11 +173,8 @@ export const CreateChatThread = async (): Promise<
 > => {
   try {
     const sessionUser = await userSession();
-    if (
-      !sessionUser?.user?.id ||
-      !sessionUser?.user?.name ||
-      !sessionUser?.user?.tenantId
-    ) {
+    console.log("sessionUser in CreateChatThread", sessionUser);
+    if (!sessionUser?.user) {
       throw new Error("User or Tenant not found");
     }
     const modelToSave: Omit<
@@ -185,7 +182,7 @@ export const CreateChatThread = async (): Promise<
       "id" | "createdAt" | "updatedAt" | "bookmarked"
     > = {
       title: NEW_CHAT_NAME,
-      userName: sessionUser.user.name,
+      userName: sessionUser.user.displayName,
       userId: sessionUser.user.id,
       lastMessageAt: new Date(),
       isDeleted: false,

@@ -25,7 +25,6 @@ export const userSession = async (): Promise<Record<
       return {
         user: {
           ...session.user,
-          name: session.user?.name ?? undefined,
           id: session.customClaims.userId,
           displayName: session.customClaims.displayName,
           role: session.customClaims.role,
@@ -74,7 +73,6 @@ export type UserModel = {
   id: string;
   email?: string | null;
   image?: string | null;
-  name?: string;
   displayName: string;
   role: string;
   tenantId: string;

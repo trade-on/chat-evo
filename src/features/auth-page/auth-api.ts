@@ -10,7 +10,7 @@ export const {
       name: "password",
       credentials: {},
       authorize: async ({ idToken, ...rest }: any, _req) => {
-        console.log("in authorize", { idToken, rest });
+        console.log("in authorize 1", { idToken, rest });
         if (idToken) {
           try {
             const res = await fetch(
@@ -20,6 +20,7 @@ export const {
               ).toString()
             );
             const { token, ...rest } = await res.json();
+            console.log("in authorize 2", { token, rest });
             return token;
           } catch (err) {
             console.error(err);
@@ -33,9 +34,9 @@ export const {
     strategy: "jwt",
   },
   callbacks: {
-    jwt: async ({ token, ...rest }) => {
-      console.log("in jwt", { token, rest });
-      return { ...token };
+    jwt: async ({ token, user, ...rest }) => {
+      console.log("in jwt", { token, user, rest });
+      return { ...token, ...user };
     },
     // sessionにJWTトークンからのユーザ情報を格納
     session: async ({ token, session, ...rest }) => {
@@ -47,11 +48,11 @@ export const {
       // メールアドレスが認証済みかでなかったらログイン不可
       return !!user?.email_verified;
     },
-    authorized: async (x) => {
-      console.log("in authorized", { x });
-      // return !!user?.email_verified;
-      return true;
-    },
+    // authorized: async (x) => {
+    //   console.log("in authorized", { x });
+    //   // return !!user?.email_verified;
+    //   return true;
+    // },
   },
   pages: {
     signIn: "/",
