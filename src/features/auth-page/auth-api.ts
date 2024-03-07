@@ -15,7 +15,7 @@ export const {
           try {
             const res = await fetch(
               new URL(
-                `/auth/api/firebase?idToken=${idToken}`,
+                `/api/auth/firebase?idToken=${idToken}`,
                 process.env.NEXT_PUBLIC_ORIGIN
               ).toString()
             );
