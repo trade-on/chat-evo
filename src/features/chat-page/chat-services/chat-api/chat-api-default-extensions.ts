@@ -5,10 +5,10 @@ import { ServerActionResponse } from "@/features/common/server-action-response";
 import { OpenAIDALLEInstance } from "@/features/common/services/openai";
 import { uniqueId } from "@/features/common/util";
 import { GetImageUrl, UploadImageToStore } from "../chat-image-service";
-import { ChatThreadModel } from "../models";
+import { ChatThread } from "@prisma/client";
 
 export const GetDefaultExtensions = async (props: {
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
   userMessage: string;
   signal: AbortSignal;
 }): Promise<ServerActionResponse<Array<any>>> => {
@@ -53,8 +53,6 @@ async function executeCreateImage(
   userMessage: string,
   signal: AbortSignal
 ) {
-  console.log("createImage called with prompt:", args.prompt);
-
   if (!args.prompt) {
     return "No prompt provided";
   }

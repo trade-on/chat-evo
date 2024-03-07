@@ -1,6 +1,6 @@
 import { OpenAI } from "openai";
 
-export const OpenAIInstance = (model: "35" | "4" = "35") => {
+export const OpenAIInstance = (model: "35" | "4" = "4") => {
   const openai = new OpenAI({
     apiKey: process.env[`AZURE_OPENAI_API_KEY_${model}`],
     baseURL: `https://${

@@ -1,18 +1,15 @@
 import { getCurrentUser } from "@/features/auth-page/helpers";
-import {
-  ChatMessageModel,
-  ChatThreadModel,
-} from "@/features/chat-page/chat-services/models";
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { prisma } from "@/features/common/services/sql";
+import { ChatMessage, ChatThread } from "@prisma/client";
 
 export const FindAllChatThreadsForAdmin = async (
   limit: number,
   offset: number
-): Promise<ServerActionResponse<Array<ChatThreadModel>>> => {
+): Promise<ServerActionResponse<Array<ChatThread>>> => {
   const user = await getCurrentUser();
 
-  if (!user.isAdmin) {
+  if (user.role !== "admin") {
     return {
       status: "ERROR",
       errors: [{ message: "You are not authorized to perform this action" }],
@@ -40,10 +37,10 @@ export const FindAllChatThreadsForAdmin = async (
 
 export const FindAllChatMessagesForAdmin = async (
   chatThreadID: string
-): Promise<ServerActionResponse<Array<ChatMessageModel>>> => {
+): Promise<ServerActionResponse<Array<ChatMessage>>> => {
   const user = await getCurrentUser();
 
-  if (!user.isAdmin) {
+  if (user.role !== "admin") {
     return {
       status: "ERROR",
       errors: [{ message: "You are not authorized to perform this action" }],

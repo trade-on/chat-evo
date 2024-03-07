@@ -12,16 +12,17 @@ import { BookmarkCheck, MoreVertical, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FC, useState } from "react";
-import { ChatThreadModel } from "../chat-services/models";
+
 import {
   BookmarkChatThread,
   DeleteChatThreadByID,
   UpdateChatThreadTitle,
 } from "./chat-menu-service";
+import { ChatThread } from "@prisma/client";
 
 interface ChatMenuItemProps {
   href: string;
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
   children?: React.ReactNode;
 }
 
@@ -58,7 +59,7 @@ export const ChatMenuItem: FC<ChatMenuItemProps> = (props) => {
           >
             <BookmarkCheck size={18} />
             <span>
-              {props.chatThread.bookmarked ? "Remove bookmark" : "Bookmark"}
+              {props.chatThread?.bookmarked ? "Remove bookmark" : "Bookmark"}
             </span>
           </DropdownMenuItemWithIcon>
           <DropdownMenuItemWithIcon
@@ -82,7 +83,7 @@ export const ChatMenuItem: FC<ChatMenuItemProps> = (props) => {
 
 type DropdownAction = "bookmark" | "rename" | "delete";
 
-const useDropdownAction = (props: { chatThread: ChatThreadModel }) => {
+const useDropdownAction = (props: { chatThread: ChatThread }) => {
   const { chatThread } = props;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -93,9 +94,9 @@ const useDropdownAction = (props: { chatThread: ChatThreadModel }) => {
         await BookmarkChatThread({ chatThread });
         break;
       case "rename":
-        const name = window.prompt("Enter the new name for the chat thread:");
-        if (name !== null) {
-          await UpdateChatThreadTitle({ chatThread, name });
+        const title = window.prompt("スレッドのタイトルを入力してください");
+        if (title !== null) {
+          await UpdateChatThreadTitle({ chatThread, title });
         }
         break;
       case "delete":

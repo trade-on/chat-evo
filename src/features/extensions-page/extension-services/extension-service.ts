@@ -6,11 +6,6 @@ import {
   userHashedId,
   userSession,
 } from "@/features/auth-page/helpers";
-import { UpsertChatThread } from "@/features/chat-page/chat-services/chat-thread-service";
-import {
-  CHAT_THREAD_ATTRIBUTE,
-  ChatThreadModel,
-} from "@/features/chat-page/chat-services/models";
 import {
   ServerActionResponse,
   zodErrorsToServerActionErrors,
@@ -25,6 +20,8 @@ import {
   ExtensionModel,
   ExtensionModelSchema,
 } from "./models";
+import { ChatThread } from "@prisma/client";
+import { prisma } from "@/features/common/services/sql";
 
 const KEY_VAULT_MASK = "**********";
 
@@ -97,7 +94,7 @@ export const CreateExtension = async (
       name: inputModel.name,
       executionSteps: inputModel.executionSteps,
       description: inputModel.description,
-      isPublished: user.isAdmin ? inputModel.isPublished : false,
+      isPublished: user.role === "admin" ? inputModel.isPublished : false,
       userId: await userHashedId(),
       createdAt: new Date(),
       type: "EXTENSION",
@@ -168,7 +165,10 @@ export const EnsureExtensionOperation = async (
   const hashedId = await userHashedId();
 
   if (extensionResponse.status === "OK") {
-    if (currentUser.isAdmin || extensionResponse.response.userId === hashedId) {
+    if (
+      currentUser.role === "admin" ||
+      extensionResponse.response.userId === hashedId
+    ) {
       return extensionResponse;
     }
   }
@@ -273,9 +273,10 @@ export const UpdateExtension = async (
     const user = await getCurrentUser();
 
     if (extensionResponse.status === "OK") {
-      inputModel.isPublished = user.isAdmin
-        ? inputModel.isPublished
-        : extensionResponse.response.isPublished;
+      inputModel.isPublished =
+        user.role === "admin"
+          ? inputModel.isPublished
+          : extensionResponse.response.isPublished;
 
       inputModel.userId = extensionResponse.response.userId;
       inputModel.createdAt = new Date();
@@ -380,32 +381,30 @@ export const FindAllExtensionForCurrentUser = async (): Promise<
 
 export const CreateChatWithExtension = async (
   extensionId: string
-): Promise<ServerActionResponse<ChatThreadModel>> => {
+): Promise<ServerActionResponse<ChatThread>> => {
   const extensionResponse = await FindExtensionByID(extensionId);
-
-  if (extensionResponse.status === "OK") {
+  const user = await getCurrentUser();
+  if (extensionResponse.status === "OK" && user?.tenantId) {
     const extension = extensionResponse.response;
-
-    const response = await UpsertChatThread({
-      name: extension.name,
-      useName: (await userSession())!.name,
-      userId: await userHashedId(),
-      id: "",
-      createdAt: new Date(),
-      lastMessageAt: new Date(),
-      bookmarked: false,
-      isDeleted: false,
-      type: CHAT_THREAD_ATTRIBUTE,
-      personaMessage: "",
-      personaMessageTitle: CHAT_DEFAULT_PERSONA,
-      extension: [extension.id],
+    const thread = await prisma.chatThread.create({
+      data: {
+        title: extension.name,
+        userName: user?.name ?? "",
+        userId: user.id,
+        lastMessageAt: new Date(),
+        isDeleted: false,
+        tenantId: user.tenantId,
+      },
     });
 
-    return response;
-  } else {
     return {
-      status: "ERROR",
-      errors: extensionResponse.errors,
+      status: "OK",
+      response: thread,
+    };
+  } else {
+    return extensionResponse as {
+      status: "ERROR";
+      errors: [{ message: string }];
     };
   }
 };

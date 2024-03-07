@@ -8,9 +8,7 @@ import {
   PROMPT_ATTRIBUTE,
   PromptModelSchema,
 } from "@/features/prompt-page/models";
-import { SqlQuerySpec } from "@azure/cosmos";
 import { getCurrentUser, userHashedId } from "../auth-page/helpers";
-import { ConfigContainer } from "../common/services/cosmos";
 import { Prompt } from "@prisma/client";
 import { prisma } from "../common/services/sql";
 
@@ -20,7 +18,7 @@ export const CreatePrompt = async (
   try {
     const user = await getCurrentUser();
 
-    if (!user.isAdmin) {
+    if (user.role !== "admin") {
       return {
         status: "UNAUTHORIZED",
         errors: [
@@ -34,7 +32,7 @@ export const CreatePrompt = async (
     const modelToSave: Omit<Prompt, "id" | "createdAt" | "updatedAt"> = {
       name: props.name,
       description: props.description,
-      isPublished: user.isAdmin ? props.isPublished : false,
+      isPublished: user.role === "admin" ? props.isPublished : false,
       userId: await userHashedId(),
     };
 
@@ -104,7 +102,7 @@ export const EnsurePromptOperation = async (
   const currentUser = await getCurrentUser();
 
   if (promptResponse.status === "OK") {
-    if (currentUser.isAdmin) {
+    if (currentUser.role === "admin") {
       return promptResponse;
     }
   }
@@ -198,9 +196,8 @@ export const UpsertPrompt = async (
         ...prompt,
         name: promptInput.name,
         description: promptInput.description,
-        isPublished: user.isAdmin
-          ? promptInput.isPublished
-          : prompt.isPublished,
+        isPublished:
+          user.role === "admin" ? promptInput.isPublished : prompt.isPublished,
         createdAt: new Date(),
       };
 

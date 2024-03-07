@@ -41,7 +41,7 @@ export const UserProfile = () => {
               {session?.user?.email}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {session?.user?.isAdmin ? "Admin" : ""}
+              {session?.customClaims.role === "admin" ? "管理者" : "メンバー"}
             </p>
           </div>
         </DropdownMenuLabel>

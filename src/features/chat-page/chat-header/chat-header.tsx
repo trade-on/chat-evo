@@ -1,11 +1,8 @@
-import { ExtensionModel } from "@/features/extensions-page/extension-services/models";
 import { FC } from "react";
-import { ChatDocumentModel, ChatThreadModel } from "../chat-services/models";
+import { ChatThread } from "@prisma/client";
 
 interface Props {
-  chatThread: ChatThreadModel;
-  chatDocuments: Array<ChatDocumentModel>;
-  extensions: Array<ExtensionModel>;
+  chatThread: ChatThread;
 }
 
 export const ChatHeader: FC<Props> = (props) => {

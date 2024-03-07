@@ -33,11 +33,9 @@ export const LogIn: FC<LoginProps> = (props) => {
           <Button onClick={() => signIn("azure-ad-b2c")}>
             パスワードでサインイン
           </Button>
-          {props.isDevMode ? (
-            <Button onClick={() => signIn("localdev")}>
-              Basic Auth (DEV ONLY)
-            </Button>
-          ) : null}
+          <Button onClick={() => signIn("password")}>
+            パスワードでログイン
+          </Button>
         </CardContent>
       </Card>
     </div>

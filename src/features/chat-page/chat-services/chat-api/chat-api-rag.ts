@@ -10,11 +10,12 @@ import {
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { SimilaritySearch } from "../azure-ai-search/azure-ai-search";
 import { CreateCitations, FormatCitations } from "../citation-service";
-import { ChatCitationModel, ChatThreadModel } from "../models";
 import { CHAT_DEFAULT_SYSTEM_PROMPT } from "@/features/theme/theme-config";
+import { ChatThread } from "@prisma/client";
+import { ChatCitationModel } from "../models";
 
 export const ChatApiRAG = async (props: {
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
   userMessage: string;
   history: ChatCompletionMessageParam[];
   signal: AbortSignal;

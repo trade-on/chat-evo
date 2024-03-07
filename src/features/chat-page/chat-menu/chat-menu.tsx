@@ -1,15 +1,12 @@
 import { sortByTimestamp } from "@/features/common/util";
 import { FC } from "react";
-import {
-  ChatThreadModel,
-  MenuItemsGroup,
-  MenuItemsGroupName,
-} from "../chat-services/models";
+import { MenuItemsGroup, MenuItemsGroupName } from "../chat-services/models";
 import { ChatGroup } from "./chat-group";
 import { ChatMenuItem } from "./chat-menu-item";
+import { ChatThread } from "@prisma/client";
 
 interface ChatMenuProps {
-  menuItems: Array<ChatThreadModel>;
+  menuItems: Array<ChatThread>;
 }
 
 export const ChatMenu: FC<ChatMenuProps> = (props) => {
@@ -25,7 +22,7 @@ export const ChatMenu: FC<ChatMenuProps> = (props) => {
                 href={`/chat/${item.id}`}
                 chatThread={item}
               >
-                {item.name.replace("\n", "")}
+                {item.title.replace("\n", "")}
               </ChatMenuItem>
             ))}
           </ChatGroup>
@@ -35,7 +32,7 @@ export const ChatMenu: FC<ChatMenuProps> = (props) => {
   );
 };
 
-export const GroupChatThreadByType = (menuItems: Array<ChatThreadModel>) => {
+export const GroupChatThreadByType = (menuItems: Array<ChatThread>) => {
   const groupedMenuItems: Array<MenuItemsGroup> = [];
 
   // todays date

@@ -1,7 +1,7 @@
 "use server";
 import "server-only";
 
-import { userHashedId } from "@/features/auth-page/helpers";
+import { getCurrentUser, userHashedId } from "@/features/auth-page/helpers";
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { ChatRole } from "./models";
 import { prisma } from "@/features/common/services/sql";
@@ -42,15 +42,16 @@ export const FindAllChatMessagesForCurrentUser = async (
   chatThreadID: string
 ): Promise<ServerActionResponse<Array<ChatMessage>>> => {
   try {
+    const user = await getCurrentUser();
+
     const resources = await prisma.chatMessage.findMany({
       where: {
         threadId: chatThreadID,
-        userId: await userHashedId(),
+        // userId: user.id,
         isDeleted: false,
       },
       orderBy: { createdAt: "asc" },
     });
-
     return {
       status: "OK",
       response: resources,
@@ -67,30 +68,10 @@ export const FindAllChatMessagesForCurrentUser = async (
   }
 };
 
-export const CreateChatMessage = async ({
-  name,
-  content,
-  role,
-  chatThreadId,
-  multiModalImage,
-}: {
-  name: string;
-  role: ChatRole;
-  content: string;
-  chatThreadId: string;
-  multiModalImage?: string | null;
-}): Promise<ServerActionResponse<ChatMessage>> => {
-  const userId = await userHashedId();
-  const modelToSave: Omit<ChatMessage, "id" | "createdAt" | "updatedAt"> = {
-    content,
-    name,
-    role,
-    userId: userId,
-    threadId: chatThreadId,
-    isDeleted: false,
-    multiModalImage: multiModalImage ?? null,
-  };
-  return await UpsertChatMessage(modelToSave);
+export const CreateChatMessage = async (
+  model: Omit<ChatMessage, "id" | "createdAt" | "updatedAt">
+): Promise<ServerActionResponse<ChatMessage>> => {
+  return await UpsertChatMessage(model);
 };
 
 export const UpsertChatMessage = async (

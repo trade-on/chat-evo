@@ -9,14 +9,10 @@ import {
 } from "../ui/accordion";
 import { RecursiveUI } from "../ui/recursive-ui";
 import { CitationAction } from "./citation/citation-action";
+import { ChatMessage } from "@prisma/client";
 
 interface MessageContentProps {
-  message: {
-    role: string;
-    content: string;
-    name: string;
-    multiModalImage: string | null;
-  };
+  message: ChatMessage;
 }
 
 const MessageContent: React.FC<MessageContentProps> = ({ message }) => {

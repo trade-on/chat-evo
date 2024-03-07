@@ -10,12 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { LoadingIndicator } from "../ui/loading";
-import { PromptModel } from "./models";
 import { DeletePrompt } from "./prompt-service";
 import { promptStore } from "./prompt-store";
+import { Prompt } from "@prisma/client";
 
 interface Props {
-  prompt: PromptModel;
+  prompt: Prompt;
 }
 
 type DropdownAction = "delete";
@@ -54,7 +54,7 @@ export const PromptCardContextMenu: FC<Props> = (props) => {
   );
 };
 
-const useDropdownAction = (props: { prompt: PromptModel }) => {
+const useDropdownAction = (props: { prompt: Prompt }) => {
   const { prompt } = props;
   const [isLoading, setIsLoading] = useState(false);
 

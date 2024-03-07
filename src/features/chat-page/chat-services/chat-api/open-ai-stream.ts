@@ -1,15 +1,12 @@
 import { AI_NAME } from "@/features/theme/theme-config";
 import { ChatCompletionStreamingRunner } from "openai/resources/beta/chat/completions";
 import { CreateChatMessage } from "../chat-message-service";
-import {
-  AzureChatCompletion,
-  AzureChatCompletionAbort,
-  ChatThreadModel,
-} from "../models";
+import { AzureChatCompletion, AzureChatCompletionAbort } from "../models";
+import { ChatThread } from "@prisma/client";
 
 export const OpenAIStream = (props: {
   runner: ChatCompletionStreamingRunner;
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
 }) => {
   const encoder = new TextEncoder();
 
@@ -42,7 +39,10 @@ export const OpenAIStream = (props: {
             name: functionCall.name,
             content: functionCall.arguments,
             role: "function",
-            chatThreadId: chatThread.id,
+            threadId: chatThread.id,
+            isDeleted: false,
+            userId: null,
+            multiModalImage: null,
           });
 
           const response: AzureChatCompletion = {
@@ -60,7 +60,10 @@ export const OpenAIStream = (props: {
             name: "tool",
             content: functionCallResult,
             role: "function",
-            chatThreadId: chatThread.id,
+            threadId: chatThread.id,
+            isDeleted: false,
+            userId: null,
+            multiModalImage: null,
           });
           streamResponse(response.type, JSON.stringify(response));
         })
@@ -73,7 +76,7 @@ export const OpenAIStream = (props: {
           controller.close();
         })
         .on("error", async (error) => {
-          console.log("🔴 error", error);
+          console.error("🔴 error", error);
           const response: AzureChatCompletion = {
             type: "error",
             response: error.message,
@@ -84,7 +87,10 @@ export const OpenAIStream = (props: {
             name: AI_NAME,
             content: lastMessage,
             role: "assistant",
-            chatThreadId: props.chatThread.id,
+            threadId: props.chatThread.id,
+            userId: null,
+            multiModalImage: null,
+            isDeleted: false,
           });
 
           streamResponse(response.type, JSON.stringify(response));
@@ -95,7 +101,10 @@ export const OpenAIStream = (props: {
             name: AI_NAME,
             content: content,
             role: "assistant",
-            chatThreadId: props.chatThread.id,
+            threadId: props.chatThread.id,
+            userId: null,
+            multiModalImage: null,
+            isDeleted: false,
           });
 
           const response: AzureChatCompletion = {

@@ -4,10 +4,6 @@ import "server-only";
 import { getCurrentUser, userHashedId } from "@/features/auth-page/helpers";
 import { UpsertChatThread } from "@/features/chat-page/chat-services/chat-thread-service";
 import {
-  CHAT_THREAD_ATTRIBUTE,
-  ChatThreadModel,
-} from "@/features/chat-page/chat-services/models";
-import {
   ServerActionResponse,
   zodErrorsToServerActionErrors,
 } from "@/features/common/server-action-response";
@@ -15,6 +11,7 @@ import { HistoryContainer } from "@/features/common/services/cosmos";
 import { uniqueId } from "@/features/common/util";
 import { SqlQuerySpec } from "@azure/cosmos";
 import { PERSONA_ATTRIBUTE, PersonaModel, PersonaModelSchema } from "./models";
+import { ChatThread } from "@prisma/client";
 
 interface PersonaInput {
   name: string;
@@ -83,7 +80,7 @@ export const CreatePersona = async (
       name: props.name,
       description: props.description,
       personaMessage: props.personaMessage,
-      isPublished: user.isAdmin ? props.isPublished : false,
+      isPublished: user.role === "admin" ? props.isPublished : false,
       userId: await userHashedId(),
       createdAt: new Date(),
       type: "PERSONA",
@@ -134,7 +131,10 @@ export const EnsurePersonaOperation = async (
   const hashedId = await userHashedId();
 
   if (personaResponse.status === "OK") {
-    if (currentUser.isAdmin || personaResponse.response.userId === hashedId) {
+    if (
+      currentUser.role === "admin" ||
+      personaResponse.response.userId === hashedId
+    ) {
       return personaResponse;
     }
   }
@@ -194,9 +194,10 @@ export const UpsertPersona = async (
         name: personaInput.name,
         description: personaInput.description,
         personaMessage: personaInput.personaMessage,
-        isPublished: user.isAdmin
-          ? personaInput.isPublished
-          : persona.isPublished,
+        isPublished:
+          user.role === "admin"
+            ? personaInput.isPublished
+            : persona.isPublished,
         createdAt: new Date(),
       };
 
@@ -284,7 +285,7 @@ export const FindAllPersonaForCurrentUser = async (): Promise<
 
 export const CreatePersonaChat = async (
   personaId: string
-): Promise<ServerActionResponse<ChatThreadModel>> => {
+): Promise<ServerActionResponse<ChatThread>> => {
   const personaResponse = await FindPersonaByID(personaId);
   const user = await getCurrentUser();
 
@@ -292,18 +293,17 @@ export const CreatePersonaChat = async (
     const persona = personaResponse.response;
 
     const response = await UpsertChatThread({
-      name: persona.name,
-      useName: user.name,
+      title: persona.name,
+      userName: user.displayName,
       userId: await userHashedId(),
       id: "",
-      createdAt: new Date(),
       lastMessageAt: new Date(),
       bookmarked: false,
       isDeleted: false,
-      type: CHAT_THREAD_ATTRIBUTE,
-      personaMessage: persona.personaMessage,
-      personaMessageTitle: persona.name,
-      extension: [],
+      tenantId: user.tenantId,
+      // personaMessage: persona.personaMessage,
+      // personaMessageTitle: persona.name,
+      // extension: [],
     });
 
     return response;

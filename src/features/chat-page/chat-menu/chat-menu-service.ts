@@ -10,7 +10,8 @@ import {
   SoftDeleteChatThreadForCurrentUser,
   UpsertChatThread,
 } from "../chat-services/chat-thread-service";
-import { ChatThreadModel } from "../chat-services/models";
+
+import { ChatThread } from "@prisma/client";
 
 export const DeleteChatThreadByID = async (chatThreadID: string) => {
   await SoftDeleteChatThreadForCurrentUser(chatThreadID);
@@ -43,12 +44,12 @@ export const DeleteAllChatThreads = async (): Promise<
 };
 
 export const UpdateChatThreadTitle = async (props: {
-  chatThread: ChatThreadModel;
-  name: string;
+  chatThread: ChatThread;
+  title: string;
 }) => {
   await UpsertChatThread({
     ...props.chatThread,
-    name: props.name,
+    title: props.title,
   });
 
   RevalidateCache({
@@ -57,9 +58,7 @@ export const UpdateChatThreadTitle = async (props: {
   });
 };
 
-export const BookmarkChatThread = async (props: {
-  chatThread: ChatThreadModel;
-}) => {
+export const BookmarkChatThread = async (props: { chatThread: ChatThread }) => {
   await UpsertChatThread({
     ...props.chatThread,
     bookmarked: !props.chatThread.bookmarked,

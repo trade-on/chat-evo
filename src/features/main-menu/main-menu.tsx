@@ -43,7 +43,7 @@ export const MainMenu = async () => {
               <Book {...menuIconProps} />
             </MenuLink>
           </MenuItem>
-          {user.isAdmin && (
+          {user.role === "admin" && (
             <>
               <MenuItem tooltip="reporting">
                 <MenuLink href="/reporting">

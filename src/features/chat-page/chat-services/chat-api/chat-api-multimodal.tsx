@@ -3,9 +3,9 @@ import "server-only";
 
 import { OpenAIVisionInstance } from "@/features/common/services/openai";
 import { ChatCompletionStreamingRunner } from "openai/resources/beta/chat/completions";
-import { ChatThreadModel } from "../models";
+import { ChatThread } from "@prisma/client";
 export const ChatApiMultimodal = (props: {
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
   userMessage: string;
   file: string;
   signal: AbortSignal;

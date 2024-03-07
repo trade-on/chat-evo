@@ -8,9 +8,10 @@ import { ChatMessageArea } from "@/features/ui/chat/chat-message-area/chat-messa
 import ChatMessageContainer from "@/features/ui/chat/chat-message-area/chat-message-container";
 import ChatMessageContentArea from "@/features/ui/chat/chat-message-area/chat-message-content";
 import MessageContent from "../chat-page/message-content";
+import { ChatMessage } from "@prisma/client";
 
 interface ReportingChatPageProps {
-  messages: Array<ChatMessageModel>;
+  messages: Array<ChatMessage>;
   chatDocuments: Array<ChatDocumentModel>;
 }
 
@@ -23,7 +24,7 @@ export default function ReportingChatPage(props: ReportingChatPageProps) {
             return (
               <ChatMessageArea
                 key={message.id}
-                profileName={message.name}
+                profileName={message.name ?? ""}
                 role={message.role}
                 onCopy={() => {
                   navigator.clipboard.writeText(message.content);

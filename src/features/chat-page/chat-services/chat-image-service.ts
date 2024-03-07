@@ -5,7 +5,7 @@ import { ServerActionResponse } from "@/features/common/server-action-response";
 import { GetBlob, UploadBlob } from "../../common/services/azure-storage";
 
 const IMAGE_CONTAINER_NAME = "images";
-const IMAGE_API_PATH = process.env.NEXTAUTH_URL + "/api/images";
+const IMAGE_API_PATH = /* process.env.NEXTAUTH_URL + */ "/api/images";
 
 export const GetBlobPath = (threadId: string, blobName: string): string => {
   return `${threadId}/${blobName}`;

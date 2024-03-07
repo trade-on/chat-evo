@@ -3,10 +3,11 @@ import { FindAllPrompts } from "@/features/prompt-page/prompt-service";
 import { proxy, useSnapshot } from "valtio";
 import { chatStore } from "../../chat-store";
 import { SetInputRowsToMax } from "../use-chat-input-dynamic-height";
+import { Prompt } from "@prisma/client";
 
 class InputPromptState {
   public errors: string[] = [];
-  public prompts: Array<PromptModel> = [];
+  public prompts: Array<Prompt> = [];
   public isOpened: boolean = false;
   public isLoading: boolean = false;
 
@@ -34,7 +35,7 @@ class InputPromptState {
     this.errors = errors;
   }
 
-  public selectPrompt(prompt: PromptModel) {
+  public selectPrompt(prompt: Prompt) {
     chatStore.updateInput(prompt.description);
     this.isOpened = false;
     this.errors = [];

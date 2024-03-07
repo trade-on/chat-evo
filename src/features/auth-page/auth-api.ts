@@ -1,110 +1,85 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { Provider } from "next-auth/providers/index";
-import { hashValue } from "./helpers";
-import AzureADB2CProvider from "next-auth/providers/azure-ad-b2c";
 
-const configureIdentityProvider = () => {
-  const providers: Array<Provider> = [];
-
-  const adminEmails = process.env.ADMIN_EMAIL_ADDRESS?.split(",").map((email) =>
-    email.toLowerCase().trim()
-  );
-
-  if (
-    process.env.AZURE_AD_B2C_TENANT_NAME &&
-    process.env.AZURE_AD_B2C_CLIENT_ID &&
-    process.env.AZURE_AD_B2C_CLIENT_SECRET &&
-    process.env.AZURE_AD_B2C_PRIMARY_USER_FLOW
-  ) {
-    providers.push(
-      AzureADB2CProvider({
-        tenantId: process.env.AZURE_AD_B2C_TENANT_NAME,
-        clientId: process.env.AZURE_AD_B2C_CLIENT_ID,
-        clientSecret: process.env.AZURE_AD_B2C_CLIENT_SECRET,
-        primaryUserFlow: process.env.AZURE_AD_B2C_PRIMARY_USER_FLOW,
-        authorization: {
-          params: {
-            scope: `https://${process.env.AZURE_AD_B2C_TENANT_NAME}.onmicrosoft.com/api/all.crud offline_access openid`,
-          },
-        },
-        async profile(profile) {
-          const newProfile = {
-            ...profile,
-            // throws error without this - unsure of the root cause (https://stackoverflow.com/questions/76244244/profile-id-is-missing-in-google-oauth-profile-response-nextauth)
-            id: profile.sub,
-            isAdmin: adminEmails?.includes(profile.emails[0].toLowerCase()),
-          };
-          return {
-            ...newProfile,
-            id: profile.sub,
-            name: profile.name,
-            email: profile.emails[0],
-            // TODO: Find out how to retrieve the profile picture
-            image: null,
-            // isAdmin: true,
-          };
-        },
-      })
-    );
-  }
-
-  // If we're in local dev, add a basic credential provider option as well
-  // (Useful when a dev doesn't have access to create app registration in their tenant)
-  // This currently takes any username and makes a user with it, ignores password
-  // Refer to: https://next-auth.js.org/configuration/providers/credentials
-  if (process.env.NODE_ENV === "development") {
-    providers.push(
-      CredentialsProvider({
-        name: "localdev",
-        credentials: {
-          username: { label: "Username", type: "text", placeholder: "dev" },
-          password: { label: "Password", type: "password" },
-        },
-        async authorize(credentials, req): Promise<any> {
-          // You can put logic here to validate the credentials and return a user.
-          // We're going to take any username and make a new user with it
-          // Create the id as the hash of the email as per userHashedId (helpers.ts)
-          const username = credentials?.username || "dev";
-          const email = username + "@localhost";
-          const user = {
-            id: hashValue(email),
-            name: username,
-            email: email,
-            isAdmin: false,
-            image: "",
-          };
-          console.log(
-            "=== DEV USER LOGGED IN:\n",
-            JSON.stringify(user, null, 2)
-          );
-          return user;
-        },
-      })
-    );
-  }
-
-  return providers;
-};
-
-export const options: NextAuthOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-  providers: [...configureIdentityProvider()],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user?.isAdmin) {
-        token.isAdmin = user.isAdmin;
-      }
-      return token;
-    },
-    async session({ session, token, user }) {
-      session.user.isAdmin = token.isAdmin as boolean;
-      return session;
-    },
-  },
+export const {
+  handlers: { GET, POST },
+  auth,
+} = NextAuth({
+  providers: [
+    CredentialsProvider({
+      name: "password",
+      credentials: {},
+      authorize: async ({ idToken, ...rest }: any, _req) => {
+        console.log("in authorize", { idToken, rest });
+        if (idToken) {
+          try {
+            const res = await fetch(
+              new URL(
+                `/auth/api/firebase?idToken=${idToken}`,
+                process.env.NEXT_PUBLIC_ORIGIN
+              ).toString()
+            );
+            const { token, ...rest } = await res.json();
+            return token;
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        return null;
+      },
+    }),
+  ],
   session: {
     strategy: "jwt",
   },
-};
+  callbacks: {
+    jwt: async ({ token, ...rest }) => {
+      console.log("in jwt", { token, rest });
+      return { ...token };
+    },
+    // sessionにJWTトークンからのユーザ情報を格納
+    session: async ({ token, session, ...rest }) => {
+      console.log("in session", { token, session, rest });
+      return { ...token, ...session };
+    },
+    signIn: async ({ user, ...rest }) => {
+      console.log("in signin", { user, rest });
+      // メールアドレスが認証済みかでなかったらログイン不可
+      return !!user?.email_verified;
+    },
+    authorized: async (x) => {
+      console.log("in authorized", { x });
+      // return !!user?.email_verified;
+      return true;
+    },
+  },
+  pages: {
+    signIn: "/",
+  },
+});
 
-export const handlers = NextAuth(options);
+// {
+//   user: {
+//     token: {
+//       token: [Object],
+//       iat: 1709664856,
+//       exp: 1712256856,
+//       jti: '14ac3a39-1cd2-45b2-a5a1-e7d9cb83166e'
+//     },
+//     iat: 1709664856,
+//     exp: 1712256856,
+//     jti: '14ac3a39-1cd2-45b2-a5a1-e7d9cb83166e'
+//   },
+//   session: { user: {}, expires: '2024-04-04T18:54:32.320Z' },
+//   token: {
+//     token: {
+//       token: [Object],
+//       iat: 1709664856,
+//       exp: 1712256856,
+//       jti: '14ac3a39-1cd2-45b2-a5a1-e7d9cb83166e'
+//     },
+//     iat: 1709664856,
+//     exp: 1712256856,
+//     jti: '14ac3a39-1cd2-45b2-a5a1-e7d9cb83166e'
+//   }
+// }

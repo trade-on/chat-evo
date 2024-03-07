@@ -27,7 +27,6 @@ enum ChatRole {
 model Tenant {
   id           String    @id @default(cuid())
   name         String
-  userId       String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   users        User[]
@@ -38,9 +37,10 @@ model Tenant {
 model User {
   id                    String     @id @default(uuid())
   tenantId              String     @map("tenant_id")
-  name                  String
-  email                 String?    @unique
+  name                  String?
+  email                 String    @unique
   emailVerified         DateTime?  @map("email_verified")
+  firstLogin            Boolean?  @map("first_login") @default(true)
   image                 String?
   createdAt             DateTime   @default(now())
   updatedAt             DateTime   @updatedAt
@@ -50,41 +50,30 @@ model User {
   chatMessages          ChatMessage[]
   tenant                Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   prompt                Prompt[]
-  @@map("users")
+@@map("users")
 }
 
 model Account {
   id                 String    @id @default(cuid())
   userId             String    @map("user_id")
-  type               String?
   provider           String
-  providerAccountId  String    @map("provider_account_id")
-  token_type         String?
-  refresh_token      String?   @db.Text
-  access_token       String?   @db.Text
-  expires_at         Int?
-  scope              String?
-  id_token           String? @db.Text
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
 }
 
 model ChatMessage {
   id               String     @id @default(cuid())
   threadId         String     @map("thread_id")
-  userId           String     @map("user_id")
-  name             String
+  userId           String?     @map("user_id")
+  name             String? // fuction calling用???
   content          String
   role             ChatRole
   isDeleted        Boolean    @default(false)
   multiModalImage  String?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
-  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   chatThread       ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   // @@map("chat_messages")
 
@@ -98,6 +87,7 @@ model ChatThread {
   userId         String
   userName       String
   lastMessageAt  DateTime
+  bookmarked     Boolean   @default(false)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)

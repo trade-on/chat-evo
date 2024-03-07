@@ -14,17 +14,15 @@ import { InputImageStore } from "../ui/chat/chat-input-area/input-image-store";
 import { textToSpeechStore } from "./chat-input/speech/use-text-to-speech";
 import { ResetInputRows } from "./chat-input/use-chat-input-dynamic-height";
 import { UpdateChatTitle } from "./chat-services/chat-thread-service";
-import {
-  AzureChatCompletion,
-  ChatMessageModel,
-  ChatThreadModel,
-} from "./chat-services/models";
+import { AzureChatCompletion } from "./chat-services/models";
+import { ChatMessage, ChatThread } from "@prisma/client";
+import { getCurrentUser } from "../auth-page/helpers";
 let abortController: AbortController = new AbortController();
 
 type chatStatus = "idle" | "loading" | "file upload";
 
 class ChatState {
-  public messages: Array<ChatMessageModel> = [];
+  public messages: Array<ChatMessage> = [];
   public loading: chatStatus = "idle";
   public input: string = "";
   public lastMessage: string = "";
@@ -32,9 +30,9 @@ class ChatState {
   public userName: string = "";
   public chatThreadId: string = "";
 
-  private chatThread: ChatThreadModel | undefined;
+  private chatThread: ChatThread | undefined;
 
-  private addToMessages(message: ChatMessageModel) {
+  private addToMessages(message: ChatMessage) {
     const currentMessage = this.messages.find((el) => el.id === message.id);
     if (currentMessage) {
       currentMessage.content = message.content;
@@ -59,9 +57,9 @@ class ChatState {
     messages,
     chatThread,
   }: {
-    chatThread: ChatThreadModel;
+    chatThread: ChatThread;
     userName: string;
-    messages: Array<ChatMessageModel>;
+    messages: Array<ChatMessage>;
   }) {
     this.chatThread = chatThread;
     this.chatThreadId = chatThread.id;
@@ -92,17 +90,18 @@ class ChatState {
     this.loading = "loading";
 
     const multimodalImage = formData.get("image-base64") as unknown as string;
-
-    const newUserMessage: ChatMessageModel = {
-      id: uniqueId(),
+    const user = await getCurrentUser();
+    const newUserMessage: ChatMessage = {
       role: "user",
       content: this.input,
-      name: this.userName,
       multiModalImage: multimodalImage,
       createdAt: new Date(),
       isDeleted: false,
       threadId: this.chatThreadId,
-      userId: "",
+      userId: user.id,
+      name: user.name ?? null,
+      id: "",
+      updatedAt: new Date(),
     };
 
     this.messages.push(newUserMessage);
@@ -128,7 +127,7 @@ class ChatState {
           const responseType = JSON.parse(event.data) as AzureChatCompletion;
           switch (responseType.type) {
             case "functionCall":
-              const mappedFunction: ChatMessageModel = {
+              const mappedFunction: ChatMessage = {
                 id: uniqueId(),
                 content: responseType.response.arguments,
                 name: responseType.response.name,
@@ -136,13 +135,14 @@ class ChatState {
                 createdAt: new Date(),
                 isDeleted: false,
                 threadId: this.chatThreadId,
-                userId: "",
-                multiModalImage: "",
+                userId: null,
+                multiModalImage: null,
+                updatedAt: new Date(),
               };
               this.addToMessages(mappedFunction);
               break;
             case "functionCallResult":
-              const mappedFunctionResult: ChatMessageModel = {
+              const mappedFunctionResult: ChatMessage = {
                 id: uniqueId(),
                 content: responseType.response,
                 name: "tool",
@@ -152,11 +152,12 @@ class ChatState {
                 threadId: this.chatThreadId,
                 userId: "",
                 multiModalImage: "",
+                updatedAt: new Date(),
               };
               this.addToMessages(mappedFunctionResult);
               break;
             case "content":
-              const mappedContent: ChatMessageModel = {
+              const mappedContent: ChatMessage = {
                 id: responseType.response.id,
                 content: responseType.response.choices[0].message.content || "",
                 name: AI_NAME,
@@ -164,8 +165,9 @@ class ChatState {
                 createdAt: new Date(),
                 isDeleted: false,
                 threadId: this.chatThreadId,
-                userId: "",
-                multiModalImage: "",
+                userId: null,
+                multiModalImage: null,
+                updatedAt: new Date(),
               };
 
               this.addToMessages(mappedContent);

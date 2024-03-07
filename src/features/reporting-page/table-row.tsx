@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { ChatThreadModel } from "../chat-page/chat-services/models";
 import { TableCell, TableRow } from "../ui/table";
+import { ChatThread } from "@prisma/client";
 
-interface ChatThreadRowProps extends ChatThreadModel {}
+interface ChatThreadRowProps extends ChatThread {}
 
 const ChatThreadRow: React.FC<ChatThreadRowProps> = (props) => {
   const chatThread = props;
@@ -18,8 +18,8 @@ const ChatThreadRow: React.FC<ChatThreadRowProps> = (props) => {
         router.push("/reporting/chat/" + chatThread.id);
       }}
     >
-      <TableCell className="font-medium">{chatThread.name}</TableCell>
-      <TableCell>{chatThread.useName}</TableCell>
+      <TableCell className="font-medium">{chatThread.title}</TableCell>
+      <TableCell>{chatThread.userName}</TableCell>
       <TableCell>
         {new Date(chatThread.createdAt).toLocaleDateString()}
       </TableCell>

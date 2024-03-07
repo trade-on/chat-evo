@@ -1,6 +1,6 @@
 import { customAlphabet } from "nanoid";
 
-import { ChatThreadModel } from "../chat-page/chat-services/models";
+import { ChatThread } from "@prisma/client";
 
 export const uniqueId = () => {
   const alphabet =
@@ -9,7 +9,7 @@ export const uniqueId = () => {
   return nanoid();
 };
 
-export const sortByTimestamp = (a: ChatThreadModel, b: ChatThreadModel) => {
+export const sortByTimestamp = (a: ChatThread, b: ChatThread) => {
   return (
     new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
   );

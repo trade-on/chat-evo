@@ -10,18 +10,12 @@ import { useSession } from "next-auth/react";
 import { FC, useEffect, useRef } from "react";
 import { ExtensionModel } from "../extensions-page/extension-services/models";
 import { ChatHeader } from "./chat-header/chat-header";
-import {
-  ChatDocumentModel,
-  ChatMessageModel,
-  ChatThreadModel,
-} from "./chat-services/models";
 import MessageContent from "./message-content";
+import { ChatMessage, ChatThread } from "@prisma/client";
 
 interface ChatPageProps {
-  messages: Array<ChatMessageModel>;
-  chatThread: ChatThreadModel;
-  chatDocuments: Array<ChatDocumentModel>;
-  extensions: Array<ExtensionModel>;
+  messages: Array<ChatMessage>;
+  chatThread: ChatThread;
 }
 
 export const ChatPage: FC<ChatPageProps> = (props) => {
@@ -36,25 +30,20 @@ export const ChatPage: FC<ChatPageProps> = (props) => {
   }, [props.messages, session?.user?.name, props.chatThread]);
 
   const { messages, loading } = useChat();
-
   const current = useRef<HTMLDivElement>(null);
 
   useChatScrollAnchor({ ref: current });
 
   return (
     <main className="flex flex-1 relative flex-col">
-      <ChatHeader
-        chatThread={props.chatThread}
-        chatDocuments={props.chatDocuments}
-        extensions={props.extensions}
-      />
+      <ChatHeader chatThread={props.chatThread} />
       <ChatMessageContainer ref={current}>
         <ChatMessageContentArea>
           {messages.map((message) => {
             return (
               <ChatMessageArea
                 key={message.id}
-                profileName={message.name}
+                profileName={message.name ?? ""}
                 role={message.role}
                 onCopy={() => {
                   navigator.clipboard.writeText(message.content);

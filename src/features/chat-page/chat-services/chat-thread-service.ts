@@ -9,7 +9,6 @@ import {
 import { RedirectToChatThread } from "@/features/common/navigation-helpers";
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { NEW_CHAT_NAME } from "@/features/theme/theme-config";
-import { HistoryContainer } from "../../common/services/cosmos";
 import { prisma } from "@/features/common/services/sql";
 import { ChatThread } from "@prisma/client";
 
@@ -17,9 +16,10 @@ export const FindAllChatThreadForCurrentUser = async (): Promise<
   ServerActionResponse<Array<ChatThread>>
 > => {
   try {
+    const user = await getCurrentUser();
     const resources = await prisma.chatThread.findMany({
       where: {
-        userId: await userHashedId(),
+        userId: user.id,
         isDeleted: false,
       },
     });
@@ -39,10 +39,17 @@ export const FindChatThreadForCurrentUser = async (
   id: string
 ): Promise<ServerActionResponse<ChatThread>> => {
   try {
+    const sessionUser = await getCurrentUser();
+    const user = await prisma.user.findUniqueOrThrow({
+      where: {
+        email: sessionUser?.email ?? "",
+      },
+    });
+
     const resources = await prisma.chatThread.findUniqueOrThrow({
       where: {
         id,
-        userId: await userHashedId(),
+        userId: user.id,
         isDeleted: false,
       },
     });
@@ -115,7 +122,7 @@ export const EnsureChatThreadOperation = async (
   const hashedId = await userHashedId();
 
   if (response.status !== "OK") throw new Error("Chat thread not found");
-  if (currentUser.isAdmin || response.response.userId === hashedId) {
+  if (currentUser.role !== "admin" && response.response.userId !== hashedId) {
     throw new Error("Unauthorized to perform this operation");
   }
 
@@ -123,7 +130,7 @@ export const EnsureChatThreadOperation = async (
 };
 
 export const UpsertChatThread = async (
-  chatThread: ChatThread
+  chatThread: Omit<ChatThread, "createdAt" | "updatedAt">
 ): Promise<ServerActionResponse<ChatThread>> => {
   try {
     if (chatThread.id) {
@@ -134,14 +141,18 @@ export const UpsertChatThread = async (
     }
 
     chatThread.lastMessageAt = new Date();
-    const { resource } = await HistoryContainer().items.upsert<ChatThread>(
-      chatThread
-    );
 
-    if (resource) {
+    const thread = await prisma.chatThread.update({
+      where: {
+        id: chatThread.id,
+      },
+      data: chatThread,
+    });
+
+    if (thread) {
       return {
         status: "OK",
-        response: resource,
+        response: thread,
       };
     }
 
@@ -161,17 +172,24 @@ export const CreateChatThread = async (): Promise<
   ServerActionResponse<ChatThread>
 > => {
   try {
-    const user = await userSession();
-    if (!user?.id || !user?.name || !user?.tenantId) {
+    const sessionUser = await userSession();
+    if (
+      !sessionUser?.user?.id ||
+      !sessionUser?.user?.name ||
+      !sessionUser?.user?.tenantId
+    ) {
       throw new Error("User or Tenant not found");
     }
-    const modelToSave: Omit<ChatThread, "id" | "createdAt" | "updatedAt"> = {
+    const modelToSave: Omit<
+      ChatThread,
+      "id" | "createdAt" | "updatedAt" | "bookmarked"
+    > = {
       title: NEW_CHAT_NAME,
-      userName: user.name,
-      userId: user.id,
+      userName: sessionUser.user.name,
+      userId: sessionUser.user.id,
       lastMessageAt: new Date(),
       isDeleted: false,
-      tenantId: user.tenantId,
+      tenantId: sessionUser.user.tenantId,
     };
 
     const resource = await prisma.chatThread.create({ data: modelToSave });
@@ -181,12 +199,15 @@ export const CreateChatThread = async (): Promise<
         response: resource,
       };
     }
+    console.error("Error", resource);
 
     return {
       status: "ERROR",
       errors: [{ message: `Chat thread not found` }],
     };
   } catch (error) {
+    console.error("Something Went Error", error);
+
     return {
       status: "ERROR",
       errors: [{ message: `${error}` }],

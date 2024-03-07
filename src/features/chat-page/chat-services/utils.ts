@@ -4,9 +4,10 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources/chat/completions";
 import { ChatMessageModel } from "./models";
+import { ChatMessage } from "@prisma/client";
 
 export const mapOpenAIChatMessages = (
-  messages: ChatMessageModel[]
+  messages: ChatMessage[]
 ): ChatCompletionMessageParam[] => {
   return messages.map((message) => {
     switch (message.role) {

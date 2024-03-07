@@ -33,7 +33,7 @@ export const AddPromptSlider: FC<SliderProps> = (props) => {
   const PublicSwitch = () => {
     if (data === undefined || data === null) return null;
 
-    if (data?.user?.isAdmin) {
+    if (data?.user?.role === "admin") {
       return (
         <div className="flex items-center space-x-2">
           <Switch name="isPublished" defaultChecked={prompt.isPublished} />

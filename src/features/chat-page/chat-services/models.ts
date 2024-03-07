@@ -1,3 +1,4 @@
+import { ChatThread } from "@prisma/client";
 import { ChatCompletionSnapshot } from "openai/lib/ChatCompletionStream";
 import { ChatCompletionMessage } from "openai/resources/chat/completions";
 
@@ -56,7 +57,7 @@ export type MenuItemsGroupName = "Bookmarked" | "Past 7 days" | "Previous";
 
 export type MenuItemsGroup = {
   groupName: MenuItemsGroupName;
-} & ChatThreadModel;
+} & ChatThread;
 
 export type ChatCitationModel = {
   id: string;

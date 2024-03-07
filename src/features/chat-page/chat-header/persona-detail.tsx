@@ -11,15 +11,15 @@ import {
 } from "@/features/ui/sheet";
 import { VenetianMask } from "lucide-react";
 import { FC } from "react";
-import { ChatThreadModel } from "../chat-services/models";
+import { ChatThread } from "@prisma/client";
 
 interface Props {
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
 }
 
 export const PersonaDetail: FC<Props> = (props) => {
-  const persona = props.chatThread.personaMessageTitle;
-  const personaMessage = props.chatThread.personaMessage;
+  const persona = ""; // props.chatThread.personaMessageTitle;
+  const personaMessage = ""; // props.chatThread.personaMessage;
   return (
     <Sheet>
       <SheetTrigger asChild>

@@ -1,17 +1,17 @@
 import { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { PromptModel } from "./models";
 import { PromptCardContextMenu } from "./prompt-card-context-menu";
+import { Prompt } from "@prisma/client";
 
 interface Props {
-  prompt: PromptModel;
+  prompt: Prompt;
   showContextMenu: boolean;
 }
 
 export const PromptCard: FC<Props> = (props) => {
   const { prompt } = props;
   return (
-    <Card key={prompt.id} className="flex flex-col">
+    <Card key={prompt.name} className="flex flex-col">
       <CardHeader className="flex flex-row">
         <CardTitle className="flex-1">{prompt.name}</CardTitle>
         {props.showContextMenu && (

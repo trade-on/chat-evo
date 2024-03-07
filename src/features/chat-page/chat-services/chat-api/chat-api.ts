@@ -11,13 +11,14 @@ import {
   FindTopChatMessagesForCurrentUser,
 } from "../chat-message-service";
 import { EnsureChatThreadOperation } from "../chat-thread-service";
-import { ChatThreadModel, UserPrompt } from "../models";
+import { UserPrompt } from "../models";
 import { mapOpenAIChatMessages } from "../utils";
 import { GetDefaultExtensions } from "./chat-api-default-extensions";
 import { GetDynamicExtensions } from "./chat-api-dynamic-extensions";
 import { ChatApiExtensions } from "./chat-api-extension";
 import { ChatApiMultimodal } from "./chat-api-multimodal";
 import { OpenAIStream } from "./open-ai-stream";
+import { ChatThread } from "@prisma/client";
 type ChatTypes = "extensions" | "chat-with-file" | "multimodal";
 
 export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
@@ -30,10 +31,10 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
   const currentChatThread = currentChatThreadResponse.response;
 
   // promise all to get user, history and docs
-  const [user, history, docs, extension] = await Promise.all([
+  const [user, history, /* docs,*/ extension] = await Promise.all([
     getCurrentUser(),
     _getHistory(currentChatThread),
-    _getDocuments(currentChatThread),
+    // _getDocuments(currentChatThread),
     _getExtensions({
       chatThread: currentChatThread,
       userMessage: props.message,
@@ -42,7 +43,7 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
   ]);
   // Starting values for system and user prompt
   // Note that the system message will also get prepended with the extension execution steps. Please see ChatApiExtensions method.
-
+  const docs = [];
   let chatType: ChatTypes = "extensions";
 
   if (props.multimodalImage && props.multimodalImage.length > 0) {
@@ -52,15 +53,17 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
   } else if (extension.length > 0) {
     chatType = "extensions";
   }
-
   // save the user message
-  await CreateChatMessage({
-    name: user.name,
+  const createdMessage = await CreateChatMessage({
+    userId: user.id,
     content: props.message,
     role: "user",
-    chatThreadId: currentChatThread.id,
+    threadId: currentChatThread.id,
     multiModalImage: props.multimodalImage,
+    isDeleted: false,
+    name: user.name ?? null,
   });
+  console.log("🟢 ChatAPIEntry -> createdMessage", createdMessage);
 
   let runner: ChatCompletionStreamingRunner;
 
@@ -105,7 +108,7 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
   });
 };
 
-const _getHistory = async (chatThread: ChatThreadModel) => {
+const _getHistory = async (chatThread: ChatThread) => {
   const historyResponse = await FindTopChatMessagesForCurrentUser(
     chatThread.id
   );
@@ -120,7 +123,7 @@ const _getHistory = async (chatThread: ChatThreadModel) => {
   return [];
 };
 
-const _getDocuments = async (chatThread: ChatThreadModel) => {
+const _getDocuments = async (chatThread: ChatThread) => {
   const docsResponse = await FindAllChatDocuments(chatThread.id);
 
   if (docsResponse.status === "OK") {
@@ -132,7 +135,7 @@ const _getDocuments = async (chatThread: ChatThreadModel) => {
 };
 
 const _getExtensions = async (props: {
-  chatThread: ChatThreadModel;
+  chatThread: ChatThread;
   userMessage: string;
   signal: AbortSignal;
 }) => {

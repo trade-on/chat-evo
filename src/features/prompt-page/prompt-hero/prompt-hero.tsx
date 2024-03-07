@@ -33,8 +33,9 @@ export const PromptHero = () => {
             description:
               "Create A miniature city with colourful buildings and green trees with [iconic building]. The [iconic building] is in the centre of the image, surrounded by a blurred background with lots of [Native tree name] trees. The image has a dreamy and whimsical mood, with a shallow depth of field and a high angle view. The city looks like a toy or a model, with different styles and shapes of buildings.",
             isPublished: false,
-            type: "PROMPT",
+            // type: "PROMPT",
             userId: "",
+            updatedAt: new Date(),
           })
         }
       />
@@ -61,8 +62,9 @@ Generate a response with the following points:
 9. Potential sponsor question (5 questions) 
               `,
             isPublished: false,
-            type: "PROMPT",
+            // type: "PROMPT",
             userId: "",
+            updatedAt: new Date(),
           })
         }
       />
