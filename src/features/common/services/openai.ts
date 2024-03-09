@@ -16,9 +16,9 @@ export const OpenAIInstance = (model: "35" | "4" = "4") => {
   return openai;
 };
 
-export const OpenAIEmbeddingInstance = () => {
+export const OpenAIEmbeddingInstance = (model: "35" | "4" = "4") => {
   if (
-    !process.env.AZURE_OPENAI_API_KEY ||
+    !process.env[`AZURE_OPENAI_API_KEY_${model}`] ||
     !process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME ||
     !process.env.AZURE_OPENAI_API_INSTANCE_NAME
   ) {
@@ -28,10 +28,10 @@ export const OpenAIEmbeddingInstance = () => {
   }
 
   const openai = new OpenAI({
-    apiKey: process.env.AZURE_OPENAI_API_KEY,
+    apiKey: process.env[`AZURE_OPENAI_API_KEY_${model}`],
     baseURL: `https://${process.env.AZURE_OPENAI_API_INSTANCE_NAME}.openai.azure.com/openai/deployments/${process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME}`,
     defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION },
-    defaultHeaders: { "api-key": process.env.AZURE_OPENAI_API_KEY },
+    defaultHeaders: { "api-key": process.env[`AZURE_OPENAI_API_KEY_${model}`] },
   });
   return openai;
 };
