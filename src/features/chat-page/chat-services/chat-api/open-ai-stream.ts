@@ -11,8 +11,9 @@ export const OpenAIStream = (props: {
   const encoder = new TextEncoder();
 
   const { runner, chatThread } = props;
+  console.log("🟢 OpenAIStream at 1 -> props", props);
 
-  const readableStream = new ReadableStream({
+  const readableStream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const streamResponse = (event: string, value: string) => {
         controller.enqueue(encoder.encode(`event: ${event} \n`));
@@ -81,6 +82,7 @@ export const OpenAIStream = (props: {
             type: "error",
             response: error.message,
           };
+          console.log("🟢 OpenAIStream at 2 -> lastMessage", lastMessage);
 
           // if there is an error still save the last message even though it is not complete
           await CreateChatMessage({

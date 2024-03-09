@@ -17,6 +17,7 @@ export const ChatApiExtensions = async (props: {
   const { userMessage, history, signal, chatThread, extensions } = props;
   const openAI = OpenAIInstance();
   // const systemMessage = await extensionsSystemMessage(chatThread);
+  console.log("🟢 ChatApiExtensions -> props", props);
   return openAI.beta.chat.completions.runTools(
     {
       model: "",
