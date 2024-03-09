@@ -1,6 +1,14 @@
 import { OpenAI } from "openai";
 
 export const OpenAIInstance = (model: "35" | "4" = "4") => {
+  console.log("🟢 OpenAIInstance -> model", model);
+  console.log(
+    "🟢 OpenAIInstance -> env",
+    process.env[`AZURE_OPENAI_API_KEY_${model}`],
+    process.env[`AZURE_OPENAI_API_INSTANCE_NAME_${model}`],
+    process.env[`AZURE_OPENAI_API_DEPLOYMENT_NAME_${model}`],
+    process.env[`AZURE_OPENAI_API_VERSION_${model}`]
+  );
   const openai = new OpenAI({
     apiKey: process.env[`AZURE_OPENAI_API_KEY_${model}`],
     baseURL: `https://${
@@ -19,8 +27,8 @@ export const OpenAIInstance = (model: "35" | "4" = "4") => {
 export const OpenAIEmbeddingInstance = (model: "35" | "4" = "4") => {
   if (
     !process.env[`AZURE_OPENAI_API_KEY_${model}`] ||
-    !process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME ||
-    !process.env.AZURE_OPENAI_API_INSTANCE_NAME
+    !process.env[`AZURE_OPENAI_API_DEPLOYMENT_NAME_${model}`] ||
+    !process.env[`AZURE_OPENAI_API_INSTANCE_NAME_${model}`]
   ) {
     throw new Error(
       "Azure OpenAI Embeddings endpoint config is not set, check environment variables."
@@ -29,8 +37,14 @@ export const OpenAIEmbeddingInstance = (model: "35" | "4" = "4") => {
 
   const openai = new OpenAI({
     apiKey: process.env[`AZURE_OPENAI_API_KEY_${model}`],
-    baseURL: `https://${process.env.AZURE_OPENAI_API_INSTANCE_NAME}.openai.azure.com/openai/deployments/${process.env.AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME}`,
-    defaultQuery: { "api-version": process.env.AZURE_OPENAI_API_VERSION },
+    baseURL: `https://${
+      process.env[`AZURE_OPENAI_API_INSTANCE_NAME_${model}`]
+    }.openai.azure.com/openai/deployments/${
+      process.env[`AZURE_OPENAI_API_DEPLOYMENT_NAME_${model}`]
+    }`,
+    defaultQuery: {
+      "api-version": process.env[`AZURE_OPENAI_API_VERSION_${model}`],
+    },
     defaultHeaders: { "api-key": process.env[`AZURE_OPENAI_API_KEY_${model}`] },
   });
   return openai;
