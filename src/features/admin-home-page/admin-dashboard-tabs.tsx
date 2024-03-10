@@ -15,6 +15,7 @@ export const AdminDashboardTabs = async ({
       user: true,
     },
     where: {
+      // TODO: tenantIdで絞り込めるようにする
       // tenantId,
       role: "user",
     },
