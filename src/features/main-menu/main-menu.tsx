@@ -25,7 +25,7 @@ export const MainMenu = async () => {
     <Menu>
       <MenuBar>
         <MenuItemContainer>
-          <MenuItem tooltip="Home" asChild>
+          <MenuItem tooltip="ホーム" asChild>
             <MenuLink href="/chat">
               <Home {...menuIconProps} />
             </MenuLink>
@@ -33,20 +33,20 @@ export const MainMenu = async () => {
           <MenuTrayToggle />
         </MenuItemContainer>
         <MenuItemContainer>
-          <MenuItem tooltip="Chat">
+          <MenuItem tooltip="チャット">
             <MenuLink href="/chat">
               <MessageCircle {...menuIconProps} />
             </MenuLink>
           </MenuItem>
-          <MenuItem tooltip="prompts">
+          <MenuItem tooltip="プロンプト">
             <MenuLink href="/prompt">
               <Book {...menuIconProps} />
             </MenuLink>
           </MenuItem>
           {user.role === "admin" && (
             <>
-              <MenuItem tooltip="reporting">
-                <MenuLink href="/reporting">
+              <MenuItem tooltip="管理画面">
+                <MenuLink href="/admin">
                   <Sheet {...menuIconProps} />
                 </MenuLink>
               </MenuItem>

@@ -161,7 +161,14 @@ export const signUp = async (_: unknown, formData: FormData) => {
   const password = formData.get("password") as string;
   const displayName = formData.get("display_name") as string;
   const tenantId = formData.get("tenant_id") as string;
-
+  console.log(
+    "signUp",
+    email,
+    password,
+    displayName,
+    tenantId,
+    Array.from(formData)
+  );
   if (!email) return;
   if (!password) return;
   try {
