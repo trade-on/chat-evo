@@ -3,15 +3,16 @@ import { ChatCompletionStreamingRunner } from "openai/resources/beta/chat/comple
 import { CreateChatMessage } from "../chat-message-service";
 import { AzureChatCompletion, AzureChatCompletionAbort } from "../models";
 import { ChatThread } from "@prisma/client";
+import { getCurrentUser, userSession } from "@/features/auth-page/helpers";
 
 export const OpenAIStream = (props: {
   runner: ChatCompletionStreamingRunner;
   chatThread: ChatThread;
+  tenantId: string;
 }) => {
   const encoder = new TextEncoder();
 
   const { runner, chatThread } = props;
-  console.log("🟢 OpenAIStream at 1 -> props", props);
 
   const readableStream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -44,6 +45,9 @@ export const OpenAIStream = (props: {
             isDeleted: false,
             userId: null,
             multiModalImage: null,
+            tenantId: props.tenantId,
+            ioType: "OUTPUT",
+            model: "GPT35",
           });
 
           const response: AzureChatCompletion = {
@@ -65,6 +69,9 @@ export const OpenAIStream = (props: {
             isDeleted: false,
             userId: null,
             multiModalImage: null,
+            tenantId: props.tenantId,
+            ioType: "OUTPUT",
+            model: "GPT35",
           });
           streamResponse(response.type, JSON.stringify(response));
         })
@@ -93,6 +100,9 @@ export const OpenAIStream = (props: {
             userId: null,
             multiModalImage: null,
             isDeleted: false,
+            tenantId: props.tenantId,
+            ioType: "OUTPUT",
+            model: "GPT35",
           });
 
           streamResponse(response.type, JSON.stringify(response));
@@ -107,6 +117,9 @@ export const OpenAIStream = (props: {
             userId: null,
             multiModalImage: null,
             isDeleted: false,
+            tenantId: props.tenantId,
+            ioType: "OUTPUT",
+            model: "GPT35",
           });
 
           const response: AzureChatCompletion = {

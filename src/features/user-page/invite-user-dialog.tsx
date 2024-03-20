@@ -13,6 +13,15 @@ import {
 import { PlusCircleIcon, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { inviteUsers } from "./user-services";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type InviteFormType = {
   users: { email: string; role: "admin" | "member" }[];
@@ -43,30 +52,35 @@ export const InviteUserDialog = () => {
           <DialogTitle>
             <h1 className="text-2xl font-bold mb-4">ユーザーを招待</h1>
           </DialogTitle>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={onSubmit} className="w-[65%] mx-auto">
             {fields.map((field, index) => (
-              <div key={field.id}>
-                <div>
-                  <label>
+              <div key={field.id} className="mb-4">
+                <div className="flex items-end gap-4">
+                  <Label className="flex flex-col gap-2 flex-1">
                     メールアドレス
-                    <input
+                    <Input
                       type="email"
                       {...register(`users.${index}.email`, {
                         required: "メールアドレスは必須です",
                       })}
                     />
-                  </label>
-                  <label>
+                  </Label>
+                  <Label className="flex flex-col gap-2">
                     権限
-                    <select {...register(`users.${index}.role`)}>
-                      <option value={"member"}>メンバー</option>
-                      <option value={"admin"}>管理者</option>
-                    </select>
-                  </label>
+                    <Select {...register(`users.${index}.role`)}>
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="選択してください" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="member">メンバー</SelectItem>
+                        <SelectItem value="admin">管理者</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Label>
                   {fields.length > 1 && (
                     <Button
                       size={"icon"}
-                      variant={"outline"}
+                      variant={"ghost"}
                       onClick={() => remove(index)}
                     >
                       <X size={20} />
@@ -75,16 +89,17 @@ export const InviteUserDialog = () => {
                 </div>
                 {!!(index + 1 >= fields.length) && (
                   <Button
-                    variant={"ghost"}
+                    variant={"outline"}
                     size={"sm"}
                     onClick={() => append({ email: "", role: "member" })}
+                    className="mt-4"
                   >
                     <PlusCircleIcon size={20} /> 招待するユーザーを追加
                   </Button>
                 )}
               </div>
             ))}
-            <Button size="default" variant={"secondary"}>
+            <Button size="default" variant={"default"} className="mt-6">
               招待を送信
             </Button>
           </form>

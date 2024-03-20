@@ -19,7 +19,9 @@ export const AdminHome = async () => {
     <ScrollArea className="flex-1">
       <main className="flex flex-1 flex-col gap-6 pb-6">
         <Hero title={"管理画面"} description={description} />
-        <AdminDashboardTabs tenantId={tenantId} />
+        <div className="max-w-screen-lg mx-auto">
+          <AdminDashboardTabs tenantId={tenantId} />
+        </div>
       </main>
     </ScrollArea>
   );

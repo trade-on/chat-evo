@@ -52,7 +52,7 @@ export const AddPromptSlider: FC<SliderProps> = (props) => {
     >
       <SheetContent className="min-w-[480px] sm:w-[540px] flex flex-col">
         <SheetHeader>
-          <SheetTitle>Persona</SheetTitle>
+          <SheetTitle>プロンプトを追加する</SheetTitle>
         </SheetHeader>
         <form action={formAction} className="flex-1 flex flex-col">
           <ScrollArea
@@ -72,17 +72,17 @@ export const AddPromptSlider: FC<SliderProps> = (props) => {
                 </>
               )}
               <div className="grid gap-2">
-                <Label>Name</Label>
+                <Label>プロンプト名</Label>
                 <Input
                   type="text"
                   required
                   name="name"
                   defaultValue={prompt.name}
-                  placeholder="Name of the prompt"
+                  placeholder="営業資料テンプレート"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Short description</Label>
+                <Label htmlFor="description">内容</Label>
                 <Textarea
                   required
                   defaultValue={prompt.description}
@@ -107,7 +107,7 @@ function Submit() {
   return (
     <Button disabled={status.pending} className="gap-2">
       <LoadingIndicator isLoading={status.pending} />
-      Save
+      保存
     </Button>
   );
 }

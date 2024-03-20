@@ -53,7 +53,7 @@ export interface ToolsInterface {
   parameters: any;
 }
 
-export type MenuItemsGroupName = "Bookmarked" | "Past 7 days" | "Previous";
+export type MenuItemsGroupName = "お気に入り" | "最近" | "1週間以上前";
 
 export type MenuItemsGroup = {
   groupName: MenuItemsGroupName;

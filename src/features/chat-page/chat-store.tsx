@@ -102,6 +102,7 @@ class ChatState {
       name: user.displayName ?? null,
       id: "",
       updatedAt: new Date(),
+      tenantId: user.tenantId,
     };
 
     this.messages.push(newUserMessage);
@@ -138,6 +139,7 @@ class ChatState {
                 userId: null,
                 multiModalImage: null,
                 updatedAt: new Date(),
+                tenantId: user.tenantId,
               };
               this.addToMessages(mappedFunction);
               break;
@@ -153,6 +155,7 @@ class ChatState {
                 userId: "",
                 multiModalImage: "",
                 updatedAt: new Date(),
+                tenantId: user.tenantId,
               };
               this.addToMessages(mappedFunctionResult);
               break;
@@ -168,6 +171,7 @@ class ChatState {
                 userId: null,
                 multiModalImage: null,
                 updatedAt: new Date(),
+                tenantId: user.tenantId,
               };
 
               this.addToMessages(mappedContent);

@@ -8,7 +8,7 @@ export const PromptHero = () => {
     <Hero
       title={
         <>
-          <Book size={36} strokeWidth={1.5} /> Prompt Library
+          <Book size={36} strokeWidth={1.5} /> プロンプト管理
         </>
       }
       description={
@@ -16,8 +16,8 @@ export const PromptHero = () => {
       }
     >
       <HeroButton
-        title="Add New Prompt"
-        description="Build your own prompt template"
+        title="プロンプトを追加する"
+        description="あなたがよく使う指示を保存できます"
         icon={<Book />}
         onClick={() => promptStore.newPrompt()}
       />

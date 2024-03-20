@@ -3,6 +3,9 @@
 import { ServerActionResponse } from "@/features/common/server-action-response";
 import { useFormState } from "react-dom";
 import { signUp } from "@/features/auth-page/helpers";
+import { Label } from "@/features/ui/label";
+import { Input } from "@/features/ui/input";
+import { Button } from "@/features/ui/button";
 
 type InvitationFormProps = {
   tenantId: string;
@@ -15,20 +18,28 @@ export const InvitationForm = ({
 }: InvitationFormProps) => {
   const initialState: ServerActionResponse | undefined = undefined;
   const [, formAction] = useFormState(signUp, initialState);
-  console.log(tenantId, invitedEmail);
   return (
-    <form action={formAction}>
+    <form action={formAction} className="flex flex-col gap-8 rounded-md">
       <input hidden name="tenant_id" defaultValue={tenantId} />
-      <input name="display_name" placeholder="ユーザー名" />
-      <input
-        type="email"
-        name="email"
-        placeholder="メールアドレス"
-        value={invitedEmail}
-        readOnly
-      />
-      <input type="password" name="password" placeholder="パスワード" />
-      <button>登録</button>
+      <Label>
+        ユーザー名
+        <Input name="display_name" placeholder="田中太郎" className="mt-2" />
+      </Label>
+      <Label>
+        メールアドレス
+        <Input
+          type="email"
+          name="email"
+          placeholder="example@example.com"
+          readOnly
+          className="mt-2"
+        />
+      </Label>
+      <Label>
+        パスワード
+        <Input type="password" name="password" className="mt-2" />
+      </Label>
+      <Button size={"lg"}>登録</Button>
     </form>
   );
 };

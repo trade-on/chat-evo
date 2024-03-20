@@ -11,7 +11,7 @@ interface AdminMenuItemProps {
 
 export const AdminMenuItem: FC<AdminMenuItemProps> = (props) => {
   const path = usePathname();
-  console.log("path", path);
+
   return (
     <div className="flex group hover:bg-muted pr-3 text-muted-foreground rounded-sm hover:text-muted-foreground">
       <Link

@@ -40,7 +40,7 @@ export const PromptSlider: FC<SliderProps> = (props) => {
 
       <SheetContent className="min-w-[480px] flex flex-col">
         <SheetHeader>
-          <SheetTitle>Prompt Library</SheetTitle>
+          <SheetTitle>保存したプロンプト</SheetTitle>
         </SheetHeader>
         <ScrollArea className="flex-1 flex -mx-6">
           <div className="px-6 pb-6 whitespace-pre-wrap">

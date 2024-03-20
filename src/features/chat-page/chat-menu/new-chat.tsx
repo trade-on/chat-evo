@@ -13,10 +13,10 @@ export const NewChat = () => {
       aria-disabled={pending}
       size={"default"}
       className="flex gap-2"
-      variant={"outline"}
+      variant={"default"}
     >
       {pending ? <LoadingIndicator isLoading={pending} /> : <Plus size={18} />}
-      New Chat
+      新しいチャットを開始
     </Button>
   );
 };

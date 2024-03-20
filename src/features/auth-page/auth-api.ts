@@ -10,7 +10,6 @@ export const {
       name: "password",
       credentials: {},
       authorize: async ({ idToken, ...rest }: any, _req) => {
-        console.log("in authorize 1", { idToken, rest });
         if (idToken) {
           try {
             const res = await fetch(
@@ -20,7 +19,6 @@ export const {
               ).toString()
             );
             const { token, ...rest } = await res.json();
-            console.log("in authorize 2", { token, rest });
             return token;
           } catch (err) {
             console.error(err);
@@ -35,16 +33,13 @@ export const {
   },
   callbacks: {
     jwt: async ({ token, user, ...rest }) => {
-      console.log("in jwt", { token, user, rest });
       return { ...token, ...user };
     },
     // sessionにJWTトークンからのユーザ情報を格納
     session: async ({ token, session, ...rest }) => {
-      console.log("in session", { token, session, rest });
       return { ...token, ...session };
     },
     signIn: async ({ user, ...rest }) => {
-      console.log("in signin", { user, rest });
       // メールアドレスが認証済みかでなかったらログイン不可
       return !!user?.email_verified;
     },

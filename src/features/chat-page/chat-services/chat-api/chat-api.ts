@@ -62,6 +62,9 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
     multiModalImage: props.multimodalImage,
     isDeleted: false,
     name: user.displayName ?? null,
+    tenantId: user.tenantId,
+    ioType: "INPUT",
+    model: "GPT35",
   });
   console.log("🟢 ChatAPIEntry -> createdMessage", createdMessage);
 
@@ -95,9 +98,11 @@ export const ChatAPIEntry = async (props: UserPrompt, signal: AbortSignal) => {
       break;
   }
   console.log("🟢 ChatAPIEntry after switch -> chatType", chatType);
+
   const readableStream = OpenAIStream({
     runner: runner,
     chatThread: currentChatThread,
+    tenantId: user.tenantId,
   });
   console.log("🟢 ChatAPIEntry after switch -> readableStream", readableStream);
 

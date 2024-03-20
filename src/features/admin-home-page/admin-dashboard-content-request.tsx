@@ -1,6 +1,5 @@
 import { ChatMessage, User } from "@prisma/client";
 import { AdminDashboardRequestChart } from "./admin-dashboard-request-chart";
-import dynamic from "next/dynamic";
 
 type AdminDashboardContentRequestProps = {
   chatMessagesWithUser: (Pick<ChatMessage, "id" | "createdAt"> & {
@@ -61,22 +60,31 @@ export const AdminDashboardContentRequest = ({
 
   return (
     <div>
-      <dl>
-        <div>
-          <dt>リクエスト数(回)</dt>
-          <dd>{chatMessagesWithUser.length}</dd>
+      <dl className="flex gap-6 my-6">
+        <div className="flex flex-col gap-2 bg-secondary flex-1 p-8">
+          <dt className="text-base">リクエスト数</dt>
+          <dd className="flex gap-1 items-baseline text-3xl font-bold">
+            {chatMessagesWithUser.length}
+            <span className="text-sm font-normal">回</span>
+          </dd>
         </div>
-        <div>
-          <dt>スレッド数(個)</dt>
-          <dd>{threadNumber}</dd>
+        <div className="flex flex-col gap-2 bg-secondary flex-1 p-8">
+          <dt className="text-base">スレッド数</dt>
+          <dd className="flex gap-1 items-baseline text-3xl font-bold">
+            {threadNumber}
+            <span className="text-sm font-normal">個</span>
+          </dd>
         </div>
-        <div>
-          <dt>ユーザー数(人)</dt>
-          <dd>{userNumber}</dd>
+        <div className="flex flex-col gap-2 bg-secondary flex-1 p-8">
+          <dt className="text-base">ユーザー数</dt>
+          <dd className="flex gap-1 items-baseline text-3xl font-bold">
+            {userNumber}
+            <span className="text-sm font-normal">人</span>
+          </dd>
         </div>
       </dl>
-      <section>
-        <h2>今月の日別リクエスト数</h2>
+      <section className="py-6 bg-secondary">
+        <h2 className="pl-6 pb-3 text-lg font-bold">今月のリクエスト数</h2>
         <AdminDashboardRequestChart data={reqEachDay} />
       </section>
     </div>

@@ -7,7 +7,6 @@ const Invitation = async ({
   params: Record<"invitationId", string>;
 }) => {
   const invitationId = params.invitationId;
-  console.log("params", params, params.invitationId);
   if (!invitationId) {
     throw new Error("invitationId is required");
   }
@@ -15,7 +14,6 @@ const Invitation = async ({
   if (!invitationWithTenant) {
     throw new Error("invitation Not Found");
   }
-  console.log("invitationWithTenant", invitationWithTenant);
   return (
     <div>
       <h1>{invitationWithTenant.tenant.name}の招待ページ</h1>

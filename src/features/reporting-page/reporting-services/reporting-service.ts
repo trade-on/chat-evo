@@ -49,7 +49,7 @@ export const FindAllChatMessagesForAdmin = async (
 
   try {
     const resources = await prisma.chatMessage.findMany({
-      where: { threadId: chatThreadID },
+      where: { threadId: chatThreadID, tenantId: user.tenantId },
       orderBy: { createdAt: "asc" },
     });
     return {

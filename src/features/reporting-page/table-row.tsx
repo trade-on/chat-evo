@@ -15,7 +15,7 @@ const ChatThreadRow: React.FC<ChatThreadRowProps> = (props) => {
       key={chatThread.id}
       className="cursor-pointer"
       onClick={() => {
-        router.push("/reporting/chat/" + chatThread.id);
+        router.push("/admin/reporting/chat/" + chatThread.id);
       }}
     >
       <TableCell className="font-medium">{chatThread.title}</TableCell>

@@ -56,16 +56,15 @@ async function ReportingContent(props: ChatReportingProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Conversation</TableHead>
-            <TableHead className="w-[200px]">User</TableHead>
-            <TableHead className="w-[100px]">Date</TableHead>
+            <TableHead>スレッド</TableHead>
+            <TableHead className="w-[200px]">ユーザー</TableHead>
+            <TableHead className="w-[100px]">日付</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {chatThreads &&
-            chatThreads.map((chatThread) => (
-              <ChatThreadRow key={chatThread.id} {...chatThread} />
-            ))}
+          {chatThreads?.map((chatThread) => (
+            <ChatThreadRow key={chatThread.id} {...chatThread} />
+          ))}
         </TableBody>
       </Table>
       <div className="flex gap-2 p-2 justify-end">

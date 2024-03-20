@@ -1,6 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { AdminDashboardContentRequest } from "./admin-dashboard-content-request";
 import { prisma } from "../common/services/sql";
+import { AdminDashboardContentBilling } from "./admin-dashboard-content-billing";
+import { getCurrentUser } from "../auth-page/helpers";
 
 type AdminDashboardTabsProps = {
   tenantId: string;
@@ -15,8 +17,7 @@ export const AdminDashboardTabs = async ({
       user: true,
     },
     where: {
-      // TODO: tenantIdで絞り込めるようにする
-      // tenantId,
+      tenantId,
       role: "user",
     },
   });
@@ -28,7 +29,7 @@ export const AdminDashboardTabs = async ({
     select: { id: true },
     where: { tenantId },
   });
-
+  const user = await getCurrentUser();
   return (
     <Tabs defaultValue={"request"} className="w-full">
       <TabsList className="flex flex-1">
@@ -46,7 +47,15 @@ export const AdminDashboardTabs = async ({
           chatMessagesWithUser={chatMessagesWithUser}
         />
       </TabsContent>
-      <TabsContent value={"pay"}></TabsContent>
+      <TabsContent value={"pay"}>
+        <AdminDashboardContentBilling
+          threadNumber={threads.length}
+          userNumber={users.length}
+          chatMessagesWithUser={chatMessagesWithUser}
+          tenantId={tenantId}
+          userId={user.id}
+        />
+      </TabsContent>
     </Tabs>
   );
 };

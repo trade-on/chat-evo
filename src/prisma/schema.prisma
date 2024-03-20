@@ -11,6 +11,16 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
+enum AIModel {
+  GPT4
+  GPT35
+}
+
+enum ChatIOType {
+  INPUT
+  OUTPUT
+}
+
 enum UserRole {
   admin
   member
@@ -31,27 +41,30 @@ model Tenant {
   updatedAt    DateTime  @updatedAt
   users        User[]
   chatThread  ChatThread[]
-  // chatMessage   ChatMessage[]
+  chatMessage   ChatMessage[]
   invitation  Invitation[]
+  Tokens      Token[]
 }
 
 
 model User {
-  id                    String     @id @default(uuid())
-  tenantId              String     @map("tenant_id")
+  id                    String        @id @default(uuid()) @unique
+  tenantId              String        @map("tenant_id")
   name                  String?
-  email                 String    @unique
-  emailVerified         DateTime?  @map("email_verified")
-  firstLogin            Boolean?  @map("first_login") @default(true)
+  email                 String        @unique
+  emailVerified         DateTime?     @map("email_verified")
+  firstLogin            Boolean?      @map("first_login") @default(true)
   image                 String?
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
-  role                  UserRole   @default(member)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  role                  UserRole      @default(member)
   accounts              Account[]
   chatThreads           ChatThread[]
   chatMessages          ChatMessage[]
-  tenant                Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant                Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   prompt                Prompt[]
+  Tokens      Token[]
+
 @@map("users")
 }
 
@@ -65,39 +78,41 @@ model Account {
 }
 
 model ChatMessage {
-  id               String     @id @default(cuid())
-  threadId         String     @map("thread_id")
-  // tenantId       String    @map("tenant_id")
+  id               String      @id @default(cuid())  @unique
+  threadId         String      @map("thread_id")
+  tenantId       String        @map("tenant_id")
   userId           String?     @map("user_id")
+  tokenId           String     @unique
   name             String? // fuction calling用???
   content          String
   role             ChatRole
-  isDeleted        Boolean    @default(false)
+  isDeleted        Boolean     @default(false)
+  model            AIModel
   multiModalImage  String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  ioType           ChatIOType
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
   user             User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chatThread       ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  // tenant           Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  // @@map("chat_messages")
-
+  chatThread       ChatThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  tenant           Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  token            Token      @relation(fields: [tokenId], references: [id])
 }
 
 model ChatThread {
-  id             String    @id @default(cuid())
-  tenantId       String    @map("tenant_id")
-  title          String
-  isDeleted      Boolean   @default(false)
-  userId         String
-  userName       String
-  lastMessageAt  DateTime
-  bookmarked     Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant        Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  chatMessage   ChatMessage[]
-
+  id                    String        @id @default(cuid())
+  tenantId              String        @map("tenant_id")
+  title                 String    
+  isDeleted             Boolean       @default(false)
+  userId                String
+  userName              String
+  lastMessageAt         DateTime
+  bookmarked            Boolean       @default(false)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant                Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  chatMessage           ChatMessage[]
+  tokens                Token[]
 }
 
 model Prompt {
@@ -120,4 +135,21 @@ model Invitation {
   updatedAt           DateTime  @updatedAt
   tenantId            String
   tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Token {
+  id                  String      @id @default(cuid()) @unique
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  ioType              ChatIOType
+  model               AIModel
+  count               Int
+  tenantId            String
+  tenant              Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId              String
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  threadId            String
+  chatThread          ChatThread  @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  chatMessageId       String      @unique
+  chatMessage         ChatMessage?
 }

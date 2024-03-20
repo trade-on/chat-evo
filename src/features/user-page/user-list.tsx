@@ -1,4 +1,12 @@
 import { User } from "@prisma/client";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 type UserListTabletProps = {
   users: User[];
@@ -7,20 +15,20 @@ type UserListTabletProps = {
 export const UserListTable = ({ users }: UserListTabletProps) => {
   if (users.length === 0) return <div>ユーザーが見つかりませんでした</div>;
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>表示名</th>
-          <th>メールアドレス</th>
-          <th>役割</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[200px]">表示名</TableHead>
+          <TableHead className="w-[400px]">メールアドレス</TableHead>
+          <TableHead className="w-[150px]">役割</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {users.map((user) => (
           <UserListTableRow key={user.id} user={user} />
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 };
 
@@ -30,10 +38,10 @@ type UserListTableRowProps = {
 
 export const UserListTableRow = ({ user }: UserListTableRowProps) => {
   return (
-    <tr>
-      <td>{user.name}</td>
-      <td>{user.email}</td>
-      <td>{user.role}</td>
-    </tr>
+    <TableRow className="cursor-pointer">
+      <TableCell className="font-medium">{user.name}</TableCell>
+      <TableCell>{user.email}</TableCell>
+      <TableCell>{user.role === "admin" ? "管理者" : "メンバー"}</TableCell>
+    </TableRow>
   );
 };

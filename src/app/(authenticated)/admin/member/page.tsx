@@ -4,10 +4,11 @@ import { FindAllTenantUsers } from "@/features/user-page/user-services";
 
 export default async function MemberPage() {
   const users = await FindAllTenantUsers();
-  const inviteUser = () => {};
   return (
-    <div>
-      <InviteUserDialog />
+    <div className="flex flex-col items-end gap-4 mx-auto pt-40">
+      <div>
+        <InviteUserDialog />
+      </div>
       <UserListTable users={users ?? []} />
     </div>
   );

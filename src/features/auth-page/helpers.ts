@@ -20,7 +20,6 @@ export const userSession = async (): Promise<Record<
 > | null> => {
   try {
     const session = await auth();
-    console.log("--session--", session);
     if (session) {
       return {
         user: {
@@ -41,7 +40,6 @@ export const userSession = async (): Promise<Record<
 
 export const getCurrentUser = async (): Promise<UserModel> => {
   const session = await userSession();
-  console.log("getCurrentUser", session);
   if (session?.user) {
     return session.user;
   }
@@ -109,9 +107,9 @@ export const signUpBillingUser = async (_: unknown, formData: FormData) => {
   const tenantName = formData.get("tenant_name") as string;
   const displayName = formData.get("display_name") as string;
 
-  if (!email) return;
-  if (!password) return;
   try {
+    if (!email) throw new Error("メールアドレスが未入力です。");
+    if (!password) throw new Error("パスワードが未入力です。");
     const userCredential = await createUserWithEmailAndPassword(
       firebaseClientAuth,
       email,
@@ -152,7 +150,7 @@ export const signUpBillingUser = async (_: unknown, formData: FormData) => {
   } catch (e) {
     console.error(e);
   }
-  redirect("/auth/signin");
+  redirect("/");
 };
 
 export const signUp = async (_: unknown, formData: FormData) => {
@@ -161,14 +159,7 @@ export const signUp = async (_: unknown, formData: FormData) => {
   const password = formData.get("password") as string;
   const displayName = formData.get("display_name") as string;
   const tenantId = formData.get("tenant_id") as string;
-  console.log(
-    "signUp",
-    email,
-    password,
-    displayName,
-    tenantId,
-    Array.from(formData)
-  );
+
   if (!email) return;
   if (!password) return;
   try {
@@ -206,5 +197,5 @@ export const signUp = async (_: unknown, formData: FormData) => {
   } catch (e) {
     console.error(e);
   }
-  redirect("/auth/signin");
+  redirect("/");
 };
