@@ -103,6 +103,9 @@ class ChatState {
       id: "",
       updatedAt: new Date(),
       tenantId: user.tenantId,
+      model: "GPT35",
+      tokenId: "",
+      ioType: "INPUT",
     };
 
     this.messages.push(newUserMessage);
@@ -140,6 +143,9 @@ class ChatState {
                 multiModalImage: null,
                 updatedAt: new Date(),
                 tenantId: user.tenantId,
+                model: "GPT35",
+                tokenId: "",
+                ioType: "OUTPUT",
               };
               this.addToMessages(mappedFunction);
               break;
@@ -156,6 +162,9 @@ class ChatState {
                 multiModalImage: "",
                 updatedAt: new Date(),
                 tenantId: user.tenantId,
+                model: "GPT35",
+                tokenId: "",
+                ioType: "OUTPUT",
               };
               this.addToMessages(mappedFunctionResult);
               break;
@@ -172,6 +181,9 @@ class ChatState {
                 multiModalImage: null,
                 updatedAt: new Date(),
                 tenantId: user.tenantId,
+                model: "GPT35",
+                tokenId: "",
+                ioType: "OUTPUT",
               };
 
               this.addToMessages(mappedContent);
