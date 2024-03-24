@@ -56,6 +56,7 @@ export const ChatInput = () => {
         chatStore.submitChat(e);
       }}
       status={uploadButtonLabel}
+      className="flex items-end"
     >
       <ChatTextInput
         onBlur={(e) => {
@@ -82,7 +83,7 @@ export const ChatInput = () => {
               fileStore.onFileChange({ formData, chatThreadId })
             }
           /> */}
-          <PromptSlider />
+          {/* <PromptSlider /> */}
         </ChatInputSecondaryActionArea>
         <ChatInputPrimaryActionArea>
           {/* <ImageInput />

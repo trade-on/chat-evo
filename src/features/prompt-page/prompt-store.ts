@@ -13,6 +13,7 @@ class PromptState {
     updatedAt: new Date(),
     isPublished: false,
     userId: "",
+    category: "user",
   };
 
   public errors: string[] = [];
@@ -83,5 +84,6 @@ export const FormDataToPromptModel = (formData: FormData): Prompt => {
     userId: "", // the user id is set on the server once the user is authenticated
     createdAt: new Date(),
     updatedAt: new Date(),
+    category: "user",
   };
 };

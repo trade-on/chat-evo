@@ -12,7 +12,7 @@ interface ChatMenuProps {
 export const ChatMenu: FC<ChatMenuProps> = (props) => {
   const menuItemsGrouped = GroupChatThreadByType(props.menuItems);
   return (
-    <div className="px-3 flex flex-col gap-8 overflow-hidden">
+    <div className="pr-3 flex flex-col gap-8 overflow-hidden max-w-[240px]">
       {Object.entries(menuItemsGrouped).map(
         ([groupName, groupItems], index) => (
           <ChatGroup key={index} title={groupName}>

@@ -117,6 +117,7 @@ model ChatThread {
 
 model Prompt {
   id             String    @id @default(cuid())
+  category       String
   name           String
   description    String
   userId         String

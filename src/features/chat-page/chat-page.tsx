@@ -8,7 +8,6 @@ import ChatMessageContentArea from "@/features/ui/chat/chat-message-area/chat-me
 import { useChatScrollAnchor } from "@/features/ui/chat/chat-message-area/use-chat-scroll-anchor";
 import { useSession } from "next-auth/react";
 import { FC, useEffect, useRef } from "react";
-import { ExtensionModel } from "../extensions-page/extension-services/models";
 import { ChatHeader } from "./chat-header/chat-header";
 import MessageContent from "./message-content";
 import { ChatMessage, ChatThread } from "@prisma/client";

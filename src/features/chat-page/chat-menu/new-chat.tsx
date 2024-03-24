@@ -11,7 +11,7 @@ export const NewChat = () => {
   return (
     <Button
       aria-disabled={pending}
-      size={"default"}
+      size={"sm"}
       className="flex gap-2"
       variant={"default"}
     >

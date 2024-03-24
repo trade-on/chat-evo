@@ -7,6 +7,7 @@ import { cn } from "@/ui/lib";
 import { AI_NAME } from "@/features/theme/theme-config";
 import { DisplayError } from "@/features/ui/error/display-error";
 import { ScrollArea } from "@/features/ui/scroll-area";
+import { MenuTrayToggle } from "@/features/main-menu/menu-tray-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,13 @@ export default async function RootLayout({
             <ChatMenu menuItems={chatHistoryResponse.response} />
           </ScrollArea>
         </MenuTray>
+
         {children}
+        <MenuTray>
+          <ScrollArea>
+            <ChatMenu menuItems={chatHistoryResponse.response} />
+          </ScrollArea>
+        </MenuTray>
       </div>
     </div>
   );

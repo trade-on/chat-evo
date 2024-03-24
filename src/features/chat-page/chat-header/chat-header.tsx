@@ -7,10 +7,10 @@ interface Props {
 
 export const ChatHeader: FC<Props> = (props) => {
   return (
-    <div className="bg-background border-b flex items-center py-2">
+    <div className="bg-background flex items-center py-2">
       <div className="container max-w-3xl flex justify-between items-center">
         <div className="flex flex-col">
-          <span>{props.chatThread.title}</span>
+          <h2 className="text-lg font-bold">{props.chatThread.title}</h2>
         </div>
       </div>
     </div>

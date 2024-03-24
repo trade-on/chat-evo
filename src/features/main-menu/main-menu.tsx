@@ -25,14 +25,12 @@ export const MainMenu = async () => {
     <Menu>
       <MenuBar>
         <MenuItemContainer>
+          <MenuTrayToggle />
           <MenuItem tooltip="ホーム" asChild>
             <MenuLink href="/chat">
               <Home {...menuIconProps} />
             </MenuLink>
           </MenuItem>
-          <MenuTrayToggle />
-        </MenuItemContainer>
-        <MenuItemContainer>
           <MenuItem tooltip="チャット">
             <MenuLink href="/chat">
               <MessageCircle {...menuIconProps} />
@@ -53,6 +51,7 @@ export const MainMenu = async () => {
             </>
           )}
         </MenuItemContainer>
+
         <MenuItemContainer>
           <MenuItem tooltip="Profile">
             <UserProfile />

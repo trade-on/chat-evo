@@ -34,6 +34,7 @@ export const CreatePrompt = async (
       description: props.description,
       isPublished: user.role === "admin" ? props.isPublished : false,
       userId: await userHashedId(),
+      category: "user",
     };
 
     const valid = ValidateSchema(modelToSave);

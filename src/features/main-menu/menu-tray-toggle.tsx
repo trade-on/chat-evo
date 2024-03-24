@@ -1,7 +1,7 @@
 "use client";
 import { cn } from "@/ui/lib";
 import { MenuItem, menuIconProps } from "@/ui/menu";
-import { PanelLeftClose } from "lucide-react";
+import { AlignJustify, PanelLeftClose } from "lucide-react";
 import { menuStore, useMenuState } from "./menu-store";
 
 export const MenuTrayToggle = () => {
@@ -12,7 +12,7 @@ export const MenuTrayToggle = () => {
       onClick={() => menuStore.toggleMenu()}
       tooltip="Open and Collapse menu"
     >
-      <PanelLeftClose
+      <AlignJustify
         {...menuIconProps}
         className={cn(
           "transition-all rotate-180 duration-700",
